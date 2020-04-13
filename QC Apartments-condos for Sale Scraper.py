@@ -53,7 +53,7 @@ Pool =[]
 #browser = webdriver.Chrome('C:/Users/nemanja.zarkovic/PycharmProjects/Env/chromedriver.exe', options=chrome_options)  # Optional argument, if not specified will search path.
 
 browser = webdriver.Chrome('C:/Users/nemanja.zarkovic/PycharmProjects/Env/chromedriver.exe')  # Optional argument, if not specified will search path.
-browser.get('https://www.centris.ca/en/properties~for-sale~montreal-island?view=Thumbnail')
+browser.get('https://www.centris.ca/en/condos~for-sale?uc=1&view=Thumbnail')
 time.sleep(2)
 
 
@@ -71,7 +71,7 @@ no_galpages_total
 
 
 # LOOKUP URLS for each property
-for page in range(0,2):
+for page in range(0,no_galpages_total):
 
     # FIND THE NUMBER OF PROPERTIES SHOWED IN GALLERY PAGE
     PropPerGallery = len(browser.find_elements_by_xpath('//div[@data-id="templateThumbnailItem"]'))
