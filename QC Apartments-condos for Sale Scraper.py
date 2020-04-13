@@ -42,6 +42,7 @@ Claimed_Revenue =[]
 Description =[]
 Parking =[]
 Pool =[]
+UNIQUE_ID_list =[]
 
 
 
@@ -155,6 +156,11 @@ for i in range(0,len(URL_2)):
     mls_id = MLS_2[i]
     MLS.append(mls_id)
     print(mls_id)
+
+    # Unique ID (Date+MLS)
+    unique_ID = str(date_prop) + "-" + str(mls_id)
+    UNIQUE_ID_list.append(unique_ID)
+    print(unique_ID)
 
     # Property Type
     prop_type = soup.find('h1', itemprop="category").text
@@ -441,8 +447,8 @@ for i in range(0,len(URL_2)):
 
    # Enter values in DF
    df_sale = pd.DataFrame(
-       {"Date": Date, "URLs": URLs, "MLS ID": MLS,"Property Type": Property_Type, "Number of Units(for plexes)":NumberOfUnits, "Type of Units(for plexes)":TypeOfUnits ,"Latitude": Latitude,"Longitude": Longitude, "Full Address": Full_Address,"Civic No":Civic_no, "Street": Street, "Apt": Apt,
-        "Neighborhood": Neighborhood, "Region": Region, "Year": Year,"Parking":Parking,"Pool":Pool, "Extra Features": ExtraFeatures, "Property Area (sqft)": Property_Area,"Lot Area (sqft)":Lot_Area, "Bathrooms": Bathrooms,"Bedrooms": Bedrooms,"Price": Price,"Claimed Potential Revenue":Claimed_Revenue, "Description":Description})
+       {"Date": Date, "URLs": URLs, "MLS ID": MLS,"Unique_ID":UNIQUE_ID_list,"Property_Type": Property_Type, "Number_of_Units(for plexes)":NumberOfUnits, "Type_of_Units(Plexes)":TypeOfUnits ,"Latitude": Latitude,"Longitude": Longitude, "Full_Address": Full_Address,"Civic_No":Civic_no, "Street": Street, "Apt": Apt,
+        "Neighborhood": Neighborhood, "Region": Region, "Year": Year,"Parking":Parking,"Pool":Pool, "Extra_Features": ExtraFeatures, "Property_Area(sqft)": Property_Area,"Lot_Area(sqft)":Lot_Area, "Bathrooms": Bathrooms,"Bedrooms": Bedrooms,"Price": Price,"Claimed_Potential_Revenue":Claimed_Revenue, "Description":Description})
 
 
 
