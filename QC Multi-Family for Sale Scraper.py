@@ -149,10 +149,24 @@ for i in range(0,len(URL_2)):
     print(URL_Prop)
 
     # make a Get request to fetch the raw HTML content
-    html_content_property = requests.get(URL_Prop).text
+    try:
+        html_content_property = requests.get(URL_Prop).text
+    except:
+        try:
+            time.sleep(10)
+            html_content_property = requests.get(URL_Prop).text
+        except:
+            pass
 
     # parse the html content with BS
-    soup = BeautifulSoup(html_content_property, "lxml")
+    try:
+        soup = BeautifulSoup(html_content_property, "lxml")
+    except:
+        try:
+            time.sleep(10)
+            soup = BeautifulSoup(html_content_property, "lxml")
+        except:
+            pass
 
     # MLS ID
     mls_id = MLS_2[i]
@@ -463,11 +477,11 @@ for i in range(0,len(URL_2)):
 
 
 # Export to Local DB
-conn = sqlite3.connect("Project_RE_App/Databases/Final SQL DBs/Condos_Plexes_forSale.db")
+conn = sqlite3.connect("Project_RE_App/Databases/Final_SQL_DBs/Condos_Plexes_forSale.db")
 c = conn.cursor()
 #c.execute('CREATE TABLE Condos_Plexes_forSale ("Date", "URLs", "MLS_ID","Unique_ID","Property_Type", "Number_of_Units(Plexes)", "Type_of_Units(Plexes)" ,"Latitude","Longitude", "Full_Address","Civic_No", "Street", "Apt","Neighborhood", "Region", "Year","Parking","Pool", "Extra_Features", "Property_Area(sqft)","Lot_Area(sqft)", "Bathrooms","Bedrooms","Price","Claimed_Potential_Revenue", "Description")')
 
-engine = create_engine('sqlite:///Project_RE_App/Databases/Final SQL DBs/Condos_Plexes_forSale.db', echo=True)
+engine = create_engine('sqlite:///Project_RE_App/Databases/Final_SQL_DBs/Condos_Plexes_forSale.db', echo=True)
 df_sale_plexes.to_sql("Condos_Plexes_forSale", con=engine, if_exists="append", index=False)
 
 conn.commit()
