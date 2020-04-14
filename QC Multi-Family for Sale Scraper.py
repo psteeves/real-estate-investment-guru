@@ -11,6 +11,8 @@ import time
 import seaborn as sns
 import datetime
 import openpyxl
+import sqlite3
+from sqlalchemy import create_engine
 sns.set()
 
 # Setup lists to prep for DataFrame ------------------------------------------#
@@ -154,13 +156,10 @@ for i in range(0,len(URL_2)):
 
     # MLS ID
     mls_id = MLS_2[i]
+    mls_id = float(mls_id)
     MLS.append(mls_id)
     print(mls_id)
 
-    # Unique ID (Date+MLS)
-    unique_ID = str(date_prop) + "-" + str(mls_id)
-    UNIQUE_ID_list.append(unique_ID)
-    print(unique_ID)
 
     # Property Type
     prop_type = soup.find('h1', itemprop="category").text
@@ -193,16 +192,17 @@ for i in range(0,len(URL_2)):
         claimed_rev = claimed_rev.text
         claimed_rev = claimed_rev.replace("$","")
         claimed_rev = claimed_rev.replace(",","")
+        claimed_rev = float(claimed_rev)
         Claimed_Revenue.append(claimed_rev)
     except:
         claimed_rev = float("nan")
         Claimed_Revenue.append(claimed_rev)
 
-
     # Latitude
     try:
         Latitude_prop = soup.find(id='PropertyLat')
         Latitude_prop = Latitude_prop.string
+        Latitude_prop = float(Latitude_prop)
         Latitude.append(Latitude_prop)
         print(Latitude_prop)
     except:
@@ -213,6 +213,7 @@ for i in range(0,len(URL_2)):
     try:
         Longitude_prop = soup.find(id="PropertyLng")
         Longitude_prop = Longitude_prop.string
+        Longitude_prop = float(Longitude_prop)
         Longitude.append(Longitude_prop)
         print(Longitude_prop)
     except:
@@ -235,7 +236,7 @@ for i in range(0,len(URL_2)):
         print("no date")
         pass
     else:
-        date_prop = datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S")
+        date_prop = datetime.datetime.now()
         print(date_prop)
         Date.append(date_prop)
 
@@ -344,6 +345,7 @@ for i in range(0,len(URL_2)):
         baths = baths.replace("\n","")
         baths = baths.replace(" ","")
         baths = baths[0]
+        baths = float(baths)
         Bathrooms.append(baths)
         print(baths)
     except:
@@ -357,6 +359,7 @@ for i in range(0,len(URL_2)):
         beds = beds.replace("\n", "")
         beds = beds.replace(" ", "")
         beds = beds[0]
+        beds = float(beds)
         Bedrooms.append(beds)
         print(beds)
     except:
@@ -373,7 +376,7 @@ for i in range(0,len(URL_2)):
         prop_Area = prop_Area.text
         prop_Area = prop_Area.replace(" sqft","")
         prop_Area = prop_Area.replace(",","")
-        prop_Area = int(prop_Area)
+        prop_Area = float(prop_Area)
         Property_Area.append(prop_Area)
     except:
         try:
@@ -385,7 +388,7 @@ for i in range(0,len(URL_2)):
             prop_Area = prop_Area.text
             prop_Area = prop_Area.replace(" sqft", "")
             prop_Area = prop_Area.replace(",", "")
-            prop_Area = int(prop_Area)
+            prop_Area = float(prop_Area)
             Property_Area.append(prop_Area)
         except:
             prop_Area = float("nan")
@@ -401,6 +404,7 @@ for i in range(0,len(URL_2)):
         lot_area = lot_area.text
         lot_area = lot_area.replace(" sqft","")
         lot_area = lot_area.replace(",","")
+        lot_area = float(lot_area)
         Lot_Area.append(lot_area)
     except:
         lot_area = float("nan")
@@ -441,17 +445,34 @@ for i in range(0,len(URL_2)):
         desc = float("nan")
         Description.append(desc)
 
+    # Unique ID (Date+MLS)
+    unique_ID = str(date_prop)[:10] + "-" + str(mls_id)[:-2]
+    UNIQUE_ID_list.append(unique_ID)
+    print(unique_ID)
+
+
     # Status completion %
     print(round(i / len(URL_2),2),"%")
 
 
    # Enter values in DF
-   df_sale = pd.DataFrame(
+   df_sale_plexes = pd.DataFrame(
        {"Date": Date, "URLs": URLs, "MLS_ID": MLS,"Unique_ID":UNIQUE_ID_list,"Property_Type": Property_Type, "Number_of_Units(Plexes)":NumberOfUnits, "Type_of_Units(Plexes)":TypeOfUnits ,"Latitude": Latitude,"Longitude": Longitude, "Full_Address": Full_Address,"Civic_No":Civic_no, "Street": Street, "Apt": Apt,
         "Neighborhood": Neighborhood, "Region": Region, "Year": Year,"Parking":Parking,"Pool":Pool, "Extra_Features": ExtraFeatures, "Property_Area(sqft)": Property_Area,"Lot_Area(sqft)":Lot_Area, "Bathrooms": Bathrooms,"Bedrooms": Bedrooms,"Price": Price,"Claimed_Potential_Revenue":Claimed_Revenue, "Description":Description})
 
 
 
+# Export to Local DB
+conn = sqlite3.connect("Project_RE_App/Databases/Final SQL DBs/Condos_Plexes_forSale.db")
+c = conn.cursor()
+#c.execute('CREATE TABLE Condos_Plexes_forSale ("Date", "URLs", "MLS_ID","Unique_ID","Property_Type", "Number_of_Units(Plexes)", "Type_of_Units(Plexes)" ,"Latitude","Longitude", "Full_Address","Civic_No", "Street", "Apt","Neighborhood", "Region", "Year","Parking","Pool", "Extra_Features", "Property_Area(sqft)","Lot_Area(sqft)", "Bathrooms","Bedrooms","Price","Claimed_Potential_Revenue", "Description")')
+
+engine = create_engine('sqlite:///Project_RE_App/Databases/Final SQL DBs/Condos_Plexes_forSale.db', echo=True)
+df_sale_plexes.to_sql("Condos_Plexes_forSale", con=engine, if_exists="append", index=False)
+
+conn.commit()
+#engine.execute('''SELECT * FROM Condos_Plexes_forSale ''').fetchall()
+conn.close()
 
 # Setup to Export Df to Excel
 # name files and tabs
@@ -464,9 +485,9 @@ out_path_mostrecent = "C:/Users/nemanja.zarkovic/PycharmProjects/Env/Project_RE_
 writer_master_hist = pd.ExcelWriter(out_path_hist, engine="openpyxl")
 workbook_master = openpyxl.load_workbook(out_path_hist)
 writer_master_hist.book = workbook_master
-df_sale.to_excel(writer_master_hist, sheet_name=sheet_name_today, index=None)
+df_sale_plexes.to_excel(writer_master_hist, sheet_name=sheet_name_today, index=None)
 writer_master_hist.save()
 writer_master_hist.close()
 
 # write this recent df in different Excel Doc named "Most Recent Condos"
-df_sale.to_excel(out_path_mostrecent, sheet_name=sheet_name_today)
+df_sale_plexes.to_excel(out_path_mostrecent, sheet_name=sheet_name_today)

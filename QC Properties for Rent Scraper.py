@@ -8,6 +8,8 @@ import pandas as pd
 import time
 import datetime
 import openpyxl
+import sqlite3
+from sqlalchemy import create_engine
 
 
 # Setup lists to prep for DataFrame ------------------------------------------#
@@ -66,7 +68,7 @@ no_galpages_total
 
 
 # LOOKUP URLS for each property
-for page in range(0,1):
+for page in range(0,no_galpages_total):
 
     # FIND THE NUMBER OF PROPERTIES SHOWED IN GALLERY PAGE
     PropPerGallery = len(browser.find_elements_by_xpath('//div[@data-id="templateThumbnailItem"]'))
@@ -147,13 +149,10 @@ for i in range(0,len(URL_2)):
 
     # MLS ID
     mls_id = MLS_2[i]
+    mls_id = int(mls_id)
     MLS.append(mls_id)
     print(mls_id)
 
-    # Unique ID (Date+MLS)
-    unique_ID = str(date_prop) + "-" + str(mls_id)
-    UNIQUE_ID_list.append(unique_ID)
-    print(unique_ID)
 
     # Property Type
     prop_type = soup.find('h1', itemprop="category").text
@@ -167,6 +166,7 @@ for i in range(0,len(URL_2)):
     try:
         Latitude_prop = soup.find(id='PropertyLat')
         Latitude_prop = Latitude_prop.string
+        Latitude_prop = float(Latitude_prop)
         Latitude.append(Latitude_prop)
         print(Latitude_prop)
     except:
@@ -177,6 +177,7 @@ for i in range(0,len(URL_2)):
     try:
         Longitude_prop = soup.find(id="PropertyLng")
         Longitude_prop = Longitude_prop.string
+        Longitude_prop = float(Longitude_prop)
         Longitude.append(Longitude_prop)
         print(Longitude_prop)
     except:
@@ -199,7 +200,7 @@ for i in range(0,len(URL_2)):
         print("no date")
         pass
     else:
-        date_prop = datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S")
+        date_prop = datetime.datetime.now()
         print(date_prop)
         Date.append(date_prop)
 
@@ -308,6 +309,7 @@ for i in range(0,len(URL_2)):
         baths = baths.replace("\n","")
         baths = baths.replace(" ","")
         baths = baths[0]
+        baths = float(baths)
         Bathrooms.append(baths)
         print(baths)
     except:
@@ -321,6 +323,7 @@ for i in range(0,len(URL_2)):
         beds = beds.replace("\n", "")
         beds = beds.replace(" ", "")
         beds = beds[0]
+        beds = float(beds)
         Bedrooms.append(beds)
         print(beds)
     except:
@@ -337,7 +340,7 @@ for i in range(0,len(URL_2)):
         prop_Area = prop_Area.text
         prop_Area = prop_Area.replace(" sqft", "")
         prop_Area = prop_Area.replace(",", "")
-        prop_Area = int(prop_Area)
+        prop_Area = float(prop_Area)
         Property_Area.append(prop_Area)
     except:
         try:
@@ -349,7 +352,7 @@ for i in range(0,len(URL_2)):
             prop_Area = prop_Area.text
             prop_Area = prop_Area.replace(" sqft", "")
             prop_Area = prop_Area.replace(",", "")
-            prop_Area = int(prop_Area)
+            prop_Area = float(prop_Area)
             Property_Area.append(prop_Area)
         except:
             prop_Area = float("nan")
@@ -365,6 +368,7 @@ for i in range(0,len(URL_2)):
         lot_area = lot_area.text
         lot_area = lot_area.replace(" sqft", "")
         lot_area = lot_area.replace(",", "")
+        lot_area - float(lot_area)
         Lot_Area.append(lot_area)
     except:
         lot_area = float("nan")
@@ -406,6 +410,11 @@ for i in range(0,len(URL_2)):
         desc = float("nan")
         Description.append(desc)
 
+    # Unique ID (Date+MLS)
+    unique_ID = str(date_prop)[:10] + "-" + str(mls_id)[:-2]
+    UNIQUE_ID_list.append(unique_ID)
+    print(unique_ID)
+
     # Status completion %
     print(round(i / len(URL_2), 2), "%")
 
@@ -417,12 +426,26 @@ for i in range(0,len(URL_2)):
 
 
 
+# Export to Local DB
+conn = sqlite3.connect("Project_RE_App/Databases/Final SQL DBs/Condos_forRent.db")
+c = conn.cursor()
+#c.execute('CREATE TABLE Condos_forRent ("Date", "URLs", "MLS_ID", "Unique_ID", "Property_Type", "Latitude", "Longitude", "Full_Address", "Civic_No", "Street", "Apt", "Neighborhood", "Region", "Year", "Parking", "Pool", "Extra_Features", "Property_Area(sqft)", "Lot_Area(sqft)", "Bathrooms", "Bedrooms", "Rent", "Description")')
+
+engine = create_engine('sqlite:///Project_RE_App/Databases/Final SQL DBs/Condos_forRent.db', echo=True)
+df_rent.to_sql("Condos_forRent", con=engine, if_exists="append", index=False)
+
+conn.commit()
+#engine.execute('''SELECT * FROM Condos_forRent''').fetchall()
+conn.close()
+
+
+
 ###------ Setup to Export Df to Excel
 # name files and tabs
 sheet_name_today = "Mtl_rent " + str(datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S"))
 sheet_name_recent = "RECENT_mtl_rent"
 out_path_hist = "C:/Users/nemanja.zarkovic/PycharmProjects/Env/Project_RE_App/Databases/Rent Analysis/Rent_Mtl_Hist_data.xlsx"
-out_path_mostrecent = "C:/Users/nemanja.zarkovic/PycharmProjects/Env/Project_RE_App/Databases/Rent Analysis/(pat)Rent_Montreal_Most_Recent_Data.xlsx"
+out_path_mostrecent = "C:/Users/nemanja.zarkovic/PycharmProjects/Env/Project_RE_App/Databases/Rent Analysis/Rent_Montreal_Most_Recent_Data.xlsx"
 
 # Add current DF to Historical Data base as NEW sheet
 writer_master_hist = pd.ExcelWriter(out_path_hist, engine="openpyxl")
