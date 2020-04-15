@@ -55,7 +55,7 @@ UNIQUE_ID_list =[]
 
 #browser = webdriver.Chrome('C:/Users/nemanja.zarkovic/PycharmProjects/Env/chromedriver.exe', options=chrome_options)  # Optional argument, if not specified will search path.
 
-browser = webdriver.Chrome('C:/Users/nemanja.zarkovic/PycharmProjects/Env/chromedriver.exe')  # Optional argument, if not specified will search path.
+browser = webdriver.Chrome('/Project_RE_App/Models/Scrapers/All for Sale_Rent Scrapers/chromedriver.exe')  # Optional argument, if not specified will search path.
 browser.get('https://www.centris.ca/en/multi-family-properties~for-sale?view=Thumbnail')
 time.sleep(2)
 

@@ -55,7 +55,7 @@ UNIQUE_ID_list =[]
 
 #browser = webdriver.Chrome('C:/Users/nemanja.zarkovic/PycharmProjects/Env/chromedriver.exe', options=chrome_options)  # Optional argument, if not specified will search path.
 
-browser = webdriver.Chrome('C:/Users/nemanja.zarkovic/PycharmProjects/Env/chromedriver.exe')  # Optional argument, if not specified will search path.
+browser = webdriver.Chrome('/Project_RE_App/Models/Scrapers/All for Sale_Rent Scrapers/chromedriver.exe')  # Optional argument, if not specified will search path.
 browser.get('https://www.centris.ca/en/condos~for-sale?uc=1&view=Thumbnail')
 time.sleep(2)
 
@@ -470,9 +470,7 @@ for i in range(0,len(URL_2)):
 
 
    # Enter values in DF
-   df_sale_condos = pd.DataFrame(
-       {"Date": Date, "URLs": URLs, "MLS_ID": MLS,"Unique_ID":UNIQUE_ID_list,"Property_Type": Property_Type, "Number_of_Units(Plexes)":NumberOfUnits, "Type_of_Units(Plexes)":TypeOfUnits ,"Latitude": Latitude,"Longitude": Longitude, "Full_Address": Full_Address,"Civic_No":Civic_no, "Street": Street, "Apt": Apt,
-        "Neighborhood": Neighborhood, "Region": Region, "Year": Year,"Parking":Parking,"Pool":Pool, "Extra_Features": ExtraFeatures, "Property_Area(sqft)": Property_Area,"Lot_Area(sqft)":Lot_Area, "Bathrooms": Bathrooms,"Bedrooms": Bedrooms,"Price": Price,"Claimed_Potential_Revenue":Claimed_Revenue, "Description":Description})
+    df_sale_condos = pd.DataFrame({"Date": Date, "URLs": URLs, "MLS_ID": MLS,"Unique_ID":UNIQUE_ID_list,"Property_Type": Property_Type, "Number_of_Units(Plexes)":NumberOfUnits, "Type_of_Units(Plexes)":TypeOfUnits ,"Latitude": Latitude,"Longitude": Longitude, "Full_Address": Full_Address,"Civic_No":Civic_no, "Street": Street, "Apt": Apt,"Neighborhood": Neighborhood, "Region": Region, "Year": Year,"Parking":Parking,"Pool":Pool, "Extra_Features": ExtraFeatures, "Property_Area(sqft)": Property_Area,"Lot_Area(sqft)":Lot_Area, "Bathrooms": Bathrooms,"Bedrooms": Bedrooms,"Price": Price,"Claimed_Potential_Revenue":Claimed_Revenue, "Description":Description})
 
 
 # Export to Local DB
