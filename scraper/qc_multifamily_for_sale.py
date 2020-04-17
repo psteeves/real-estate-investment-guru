@@ -143,7 +143,7 @@ def get_property_info(property_url, mls_id):
         description = description.text.replace("\r\n", "").strip()
 
     # Unique ID (Date+MLS)
-    unique_id = date + "-" + str(mls_id)[:-2]
+    unique_id = date + "-" + str(mls_id)
 
     return {
         "price": price,
@@ -166,11 +166,13 @@ def get_property_info(property_url, mls_id):
         "unique_id": unique_id,
         "property_type": property_type,
         "description": description,
+        "url": property_url,
+        "mls_id": mls_id
     }
 
 
 def main():
-    browser = webdriver.Chrome("/home/psteeves/project-real-estate/chromedriver")
+    browser = webdriver.Chrome("./chromedriver")
     property_urls, mls_ids = get_all_property_urls(browser)
 
     data = []
@@ -186,7 +188,7 @@ def main():
     print(f"Successfully extracted {len(data)} / {len(data) + len(errors)} properties")
     # Enter values in DF
     df_sale_plexes = pd.DataFrame(data)
-    df_sale_plexes.to_csv("test.csv", index=False)
+    df_sale_plexes.to_csv("sale.csv", index=False)
     with open("error_log.csv", "w") as f:
         f.write(",\n".join(errors))
 
