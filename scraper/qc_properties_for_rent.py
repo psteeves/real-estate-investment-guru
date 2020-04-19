@@ -1,12 +1,15 @@
+import argparse
+import datetime
+import os
+import re
+import time
+
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
-import pandas as pd
-import time
-import re
-import datetime
+from sqlalchemy import create_engine
 from tqdm import tqdm
-import argparse
 
 
 def _parse_args():
@@ -281,6 +284,12 @@ def get_sale_property_info(property_url, mls_id):
     }
 
 
+def _save_results_to_aws(data, task):
+    uri = os.environ["DB_URI"]
+    engine = create_engine(uri)
+    data.to_sql(name=task, con=engine, if_exists="append", index=False)
+
+
 def main():
     args = _parse_args()
     task = args.task
@@ -303,8 +312,10 @@ def main():
 
     print(f"Successfully extracted {len(data)} / {len(property_urls)} properties")
     # Enter values in DF
-    df_sale_plexes = pd.DataFrame(data)
-    df_sale_plexes.to_csv(f"{task}.csv", index=False)
+    df = pd.DataFrame(data)
+
+    _save_results_to_aws(df, task)
+    print("Pushed results to AWS")
 
 
 if __name__ == "__main__":
