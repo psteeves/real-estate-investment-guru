@@ -1,1 +1,1 @@
-web: poetry run python dash/app.py
+web: python dash/app.py
