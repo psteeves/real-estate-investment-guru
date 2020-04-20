@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from sqlalchemy import create_engine
 from tqdm import tqdm
 
@@ -20,6 +21,12 @@ def _parse_args():
         choices=["rentals", "sales"],
         required=True,
         help="Type of property to scrape data for. Must be either `rent` or `sale`.",
+    )
+    parser.add_argument(
+        "-l",
+        "--local",
+        action="store_true",
+        help="Whether the script is being run locally or on a server. Affects Chrome options.",
     )
     return parser.parse_args()
 
@@ -284,6 +291,22 @@ def get_sale_property_info(property_url, mls_id):
     }
 
 
+def _load_chrome_browser(local: bool):
+    chrome_options = Options()
+    if local:
+        driver_locatino = "./chromedriver"
+    else:
+        driver_locatino = os.environ["CHROMEDRIVER_PATH"]
+
+        chrome_options.binary_location = os.environ["GOOGLE_CHROM_BIN"]
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--headless")
+
+    return webdriver.Chrome(driver_locatino, options=chrome_options)
+
+
 def _save_results_to_aws(data, task):
     uri = os.environ["DB_URI"]
     engine = create_engine(uri)
@@ -294,7 +317,8 @@ def main():
     args = _parse_args()
     task = args.task
 
-    browser = webdriver.Chrome("./chromedriver")
+    browser = _load_chrome_browser(args.local)
+
     property_urls, mls_ids = get_all_property_urls(browser, task)
     data = []
     if task == "rentals":
