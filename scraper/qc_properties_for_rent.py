@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from sqlalchemy import create_engine
 from tqdm import tqdm
 
@@ -294,7 +295,13 @@ def main():
     args = _parse_args()
     task = args.task
 
-    browser = webdriver.Chrome("./chromedriver")
+    chrome_options = Options()
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox") # linux only
+    chrome_options.add_argument("--headless")
+    browser = webdriver.Chrome("./chromedriver", options=chrome_options)
+    
     property_urls, mls_ids = get_all_property_urls(browser, task)
     data = []
     if task == "rentals":
