@@ -30,7 +30,7 @@ app.layout = html.Div(
                         400: "$400K",
                         500: "$500K",
                     },
-                    tooltip={'visible': True},
+                    tooltip={"visible": True},
                     className="dcc-control",
                 ),
             ],
