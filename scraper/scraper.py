@@ -316,10 +316,11 @@ def _save_results_to_aws(data, task):
 def main():
     args = _parse_args()
     task = args.task
+    print(f"Starting task `{task}`")
 
     browser = _load_chrome_browser(args.local)
-
     property_urls, mls_ids = get_all_property_urls(browser, task)
+    print(f"Found {len(property_urls)} properties")
     data = []
     if task == "rentals":
         func = get_rental_property_info
@@ -329,8 +330,7 @@ def main():
         try:
             info = func(url, mls_id)
         except Exception as e:
-            print(url)
-            print(e, "\n")
+            pass
         else:
             data.append(info)
 
