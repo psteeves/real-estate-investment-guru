@@ -117,6 +117,18 @@ mortgage_input_elements = [
     ),
 ]
 
+reports_section = html.Div(
+    [
+        html.H2("Investment report", className="control-title"),
+        html.P(
+            f"By investing in this property, your discounted average ROI over the next 25 years is estimated to be between "
+            f"{11.1} and {14.2}%, which represents net returns of ${670_100:,} to ${980_400:,}"
+        ),
+    ],
+    className="pretty-container",
+    id="reports-section",
+)
+
 app.layout = html.Div(
     [
         app_header,
@@ -128,6 +140,7 @@ app.layout = html.Div(
             ],
             id="model-inputs",
         ),
+        reports_section,
     ]
 )
 

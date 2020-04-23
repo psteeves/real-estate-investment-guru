@@ -35,6 +35,7 @@ body {
 .control-title {
   font-size: 28px;
   font-style: italic;
+  font-weight: bolder;
 }
 
 .control {
@@ -56,4 +57,9 @@ body {
   display: flex;
   flex-direction: row;
   flex: 1;
+}
+
+#reports-section {
+  width: 100%;
+  margin-top: 100px
 }
