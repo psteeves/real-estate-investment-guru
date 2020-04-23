@@ -10,6 +10,17 @@ body {
 
 #app-header {
   text-align: center;
+  margin-bottom: 80px;
+}
+
+#app-title {
+  font-size: 48px;
+  margin-bottom: 0;
+}
+
+#app-subtitle {
+  font-size: 24px;
+  margin-top: 8px;
 }
 
 .pretty-container {
@@ -17,16 +28,32 @@ body {
   background-color: #f9f9f9;
   margin: 10px;
   padding: 15px;
-  position: relative;
   box-shadow: 2px 2px 2px lightgrey;
+  width: 800px;
 }
 
-.dcc-control {
+.control-title {
+  font-size: 28px;
+  font-style: italic;
+}
+
+.control {
   margin: 0;
   padding: 5px;
 }
 
+.control-input {
+  width: 200px;
+}
+
 .control-label {
-  margin: 0;
+  margin-top: 20px;
+  margin-left: 0;
   padding: 10px;
+}
+
+#model-inputs {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
 }
