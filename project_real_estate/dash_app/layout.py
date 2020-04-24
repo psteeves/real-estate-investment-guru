@@ -1,5 +1,8 @@
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table
+from project_real_estate.dash_app.db import pull_data
+from project_real_estate.constants import MAX_NUM_RESULTS, COLUMNS_TO_INCLUDE
 
 
 app_header = html.Div(
@@ -133,4 +136,13 @@ reports_section = html.Div(
     ],
     className="pretty-container",
     id="reports-section",
+)
+
+sales_data = pull_data("sales")
+sales_data = sales_data.loc[:MAX_NUM_RESULTS, COLUMNS_TO_INCLUDE]
+
+results_list = dash_table.DataTable(
+    id='table',
+    columns=[{"name": i, "id": i} for i in sales_data.columns],
+    data=sales_data.to_dict("rows"),
 )
