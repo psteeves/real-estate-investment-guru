@@ -6,8 +6,6 @@ from models.financial_model import TrivialFinancialModel
 from models.rent_estimator import TrivialRentEstimator
 
 app = dash.Dash(__name__)
-
-
 app.layout = html.Div(
     [
         app_header,
@@ -15,6 +13,17 @@ app.layout = html.Div(
         reports_section,
     ]
 )
+
+
+financial_model = TrivialFinancialModel()
+rent_model = TrivialRentEstimator()
+
+
+@app.callback(
+    Output(component_id="reports-text", component_property="children"), [Input(component_id="downpayment_budget_slider", component_property="value")]
+)
+def update_report(input_value):
+    return rent_model(input_value) + financial_model(input_value)
 
 
 server = app.server
