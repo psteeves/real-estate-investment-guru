@@ -1,9 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
-import dash
-
-app = dash.Dash(__name__)
 
 app_header = html.Div(
     [
@@ -117,6 +114,15 @@ mortgage_input_elements = [
     ),
 ]
 
+model_inputs = html.Div(
+            [
+                html.Div(property_input_elements, className="pretty-container"),
+                html.Div(mortgage_input_elements, className="pretty-container"),
+                html.Div(cash_flow_input_elements, className="pretty-container"),
+            ],
+            id="model-inputs",
+        )
+
 reports_section = html.Div(
     [
         html.H2("Investment report", className="control-title"),
@@ -128,23 +134,3 @@ reports_section = html.Div(
     className="pretty-container",
     id="reports-section",
 )
-
-app.layout = html.Div(
-    [
-        app_header,
-        html.Div(
-            [
-                html.Div(property_input_elements, className="pretty-container"),
-                html.Div(mortgage_input_elements, className="pretty-container"),
-                html.Div(cash_flow_input_elements, className="pretty-container"),
-            ],
-            id="model-inputs",
-        ),
-        reports_section,
-    ]
-)
-
-server = app.server
-
-if __name__ == "__main__":
-    app.run_server(debug=True, dev_tools_props_check=False)
