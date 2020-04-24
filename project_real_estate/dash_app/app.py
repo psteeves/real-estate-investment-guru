@@ -1,9 +1,9 @@
-from dash_app.layout import app_header, model_inputs, reports_section
+from project_real_estate.dash_app.layout import app_header, model_inputs, reports_section, results_list
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import dash
-from models.financial_model import TrivialFinancialModel
-from models.rent_estimator import TrivialRentEstimator
+from project_real_estate.models.financial_model import TrivialFinancialModel
+from project_real_estate.models.rent_estimator import TrivialRentEstimator
 
 app = dash.Dash(__name__)
 app.layout = html.Div(
@@ -11,6 +11,7 @@ app.layout = html.Div(
         app_header,
         model_inputs,
         reports_section,
+        results_list
     ]
 )
 
