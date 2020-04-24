@@ -1,9 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
-import dash
-
-app = dash.Dash(__name__)
 
 app_header = html.Div(
     [
@@ -117,34 +114,23 @@ mortgage_input_elements = [
     ),
 ]
 
-reports_section = html.Div(
-    [
-        html.H2("Investment report", className="control-title"),
-        html.P(
-            f"By investing in this property, your discounted average ROI over the next 25 years is estimated to be between "
-            f"{11.1} and {14.2}%, which represents net returns of ${670_100:,} to ${980_400:,}"
-        ),
-    ],
-    className="pretty-container",
-    id="reports-section",
-)
-
-app.layout = html.Div(
-    [
-        app_header,
-        html.Div(
+model_inputs = html.Div(
             [
                 html.Div(property_input_elements, className="pretty-container"),
                 html.Div(mortgage_input_elements, className="pretty-container"),
                 html.Div(cash_flow_input_elements, className="pretty-container"),
             ],
             id="model-inputs",
-        ),
-        reports_section,
-    ]
+        )
+
+reports_section = html.Div(
+    [
+        html.H2("Investment report", className="control-title"),
+        html.P(
+            f"By investing in this property, your discounted average ROI over the next 25 years is estimated to be between "
+            f"{11.1} and {14.2}%, which represents net returns of ${670_100:,} to ${980_400:,}"
+        , id="reports-text"),
+    ],
+    className="pretty-container",
+    id="reports-section",
 )
-
-server = app.server
-
-if __name__ == "__main__":
-    app.run_server(debug=True, dev_tools_props_check=False)
