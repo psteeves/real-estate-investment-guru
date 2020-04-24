@@ -1,9 +1,8 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
-from project_real_estate.dash_app.db import pull_data
-from project_real_estate.constants import MAX_NUM_RESULTS, COLUMNS_TO_INCLUDE
 
+from project_real_estate.db import sales_data, sales_data_display
 
 app_header = html.Div(
     [
@@ -12,6 +11,20 @@ app_header = html.Div(
     ],
     id="app-header",
 )
+
+
+property_filter_elements = [
+    html.P("Property filters", className="control-title"),
+    html.P("What city do you want to look in?", className="control-label"),
+    dcc.Dropdown(
+        id="city_options",
+        options=[{"label": city, "value": city} for city in sales_data.city.unique()],
+        multi=True,
+        value=[],
+        className="control",
+    ),
+]
+
 
 property_input_elements = [
     html.P("Property parameters", className="control-title"),
@@ -117,32 +130,32 @@ mortgage_input_elements = [
     ),
 ]
 
-model_inputs = html.Div(
-            [
-                html.Div(property_input_elements, className="pretty-container"),
-                html.Div(mortgage_input_elements, className="pretty-container"),
-                html.Div(cash_flow_input_elements, className="pretty-container"),
-            ],
-            id="model-inputs",
-        )
+user_inputs = html.Div(
+    [
+        html.Div(property_filter_elements, className="pretty-container"),
+        html.Div(property_input_elements, className="pretty-container"),
+        html.Div(mortgage_input_elements, className="pretty-container"),
+        html.Div(cash_flow_input_elements, className="pretty-container"),
+    ],
+    id="model-inputs",
+)
 
 reports_section = html.Div(
     [
         html.H2("Investment report", className="control-title"),
         html.P(
-            f"By investing in this property, your discounted average ROI over the next 25 years is estimated to be between "
-            f"{11.1} and {14.2}%, which represents net returns of ${670_100:,} to ${980_400:,}"
-        , id="reports-text"),
+            f"By investing in this property, your discounted average ROI over the next 25 years is estimated "
+            f"to be between {11.1} and {14.2}%, which represents net returns of ${670_100:,} to ${980_400:,}",
+            id="reports-text",
+        ),
     ],
     className="pretty-container",
     id="reports-section",
 )
 
-sales_data = pull_data("sales")
-sales_data = sales_data.loc[:MAX_NUM_RESULTS, COLUMNS_TO_INCLUDE]
 
 results_list = dash_table.DataTable(
-    id='table',
-    columns=[{"name": i, "id": i} for i in sales_data.columns],
-    data=sales_data.to_dict("rows"),
+    id="table",
+    columns=[{"name": i, "id": i} for i in sales_data_display.columns],
+    data=[],
 )
