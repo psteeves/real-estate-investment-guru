@@ -1,2 +1,2 @@
 MAX_NUM_RESULTS = 10
-COLUMNS_TO_INCLUDE = ["full_address", "city", "price", "url"]
+COLUMNS_TO_DISPLAY = ["full_address", "price", "url"]

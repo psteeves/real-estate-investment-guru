@@ -1,9 +1,9 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
-from project_real_estate.dash_app.db import pull_data
-from project_real_estate.constants import MAX_NUM_RESULTS, COLUMNS_TO_INCLUDE
 
+from project_real_estate.constants import COLUMNS_TO_DISPLAY, MAX_NUM_RESULTS
+from project_real_estate.dash_app.db import pull_data
 
 app_header = html.Div(
     [
@@ -118,31 +118,46 @@ mortgage_input_elements = [
 ]
 
 model_inputs = html.Div(
-            [
-                html.Div(property_input_elements, className="pretty-container"),
-                html.Div(mortgage_input_elements, className="pretty-container"),
-                html.Div(cash_flow_input_elements, className="pretty-container"),
-            ],
-            id="model-inputs",
-        )
+    [
+        html.Div(property_input_elements, className="pretty-container"),
+        html.Div(mortgage_input_elements, className="pretty-container"),
+        html.Div(cash_flow_input_elements, className="pretty-container"),
+    ],
+    id="model-inputs",
+)
 
 reports_section = html.Div(
     [
         html.H2("Investment report", className="control-title"),
         html.P(
             f"By investing in this property, your discounted average ROI over the next 25 years is estimated to be between "
-            f"{11.1} and {14.2}%, which represents net returns of ${670_100:,} to ${980_400:,}"
-        , id="reports-text"),
+            f"{11.1} and {14.2}%, which represents net returns of ${670_100:,} to ${980_400:,}",
+            id="reports-text",
+        ),
     ],
     className="pretty-container",
     id="reports-section",
 )
 
-sales_data = pull_data("sales")
-sales_data = sales_data.loc[:MAX_NUM_RESULTS, COLUMNS_TO_INCLUDE]
 
+def format_data(data):
+    # Keep civic No., street and city
+    data.full_address = data.full_address.apply(lambda x: ",".join(x.split(",")[:3]))
+    # Discard neighborhood in parentheses
+    data.full_address = data.full_address.apply(lambda x: x.split("(")[0].strip())
+
+    data = data.loc[:MAX_NUM_RESULTS, COLUMNS_TO_DISPLAY]
+    data.rename(
+        columns={"full_address": "Address", "price": "Price", "url": "URL"},
+        inplace=True,
+    )
+    return data
+
+
+sales_data = pull_data("sales")
+sales_data = format_data(sales_data)
 results_list = dash_table.DataTable(
-    id='table',
+    id="table",
     columns=[{"name": i, "id": i} for i in sales_data.columns],
     data=sales_data.to_dict("rows"),
 )

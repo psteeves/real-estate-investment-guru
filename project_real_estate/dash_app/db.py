@@ -1,6 +1,7 @@
+import os
+
 import pandas as pd
 from sqlalchemy import create_engine
-import os
 
 
 def pull_data(table_name):
