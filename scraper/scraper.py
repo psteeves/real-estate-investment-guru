@@ -41,7 +41,7 @@ def get_all_property_urls(browser, task):
     property_urls = []
     mls_ids = []
     browser.get(SITE_URLS[task])
-    time.sleep(7)
+    time.sleep(8)
 
     num_pages = browser.find_element_by_xpath('//li[@class="pager-current"]').text
     num_pages = int(num_pages.split("/")[1].replace(",", ""))
@@ -67,7 +67,7 @@ def get_all_property_urls(browser, task):
         except:
             break
         else:
-            time.sleep(2)
+            time.sleep(3)
 
     # Close and Quit Browser to delete memory
     browser.close()
