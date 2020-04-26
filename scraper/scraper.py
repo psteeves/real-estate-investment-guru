@@ -106,6 +106,8 @@ def get_rental_property_info(property_url, mls_id):
         property_type = property_type.replace("for rent", "").strip()
 
     num_bedrooms = soup.find("div", text=re.compile("bedroom")).text
+    # Handle case of `4 bedrooms (1 in basement)` where we need to remove the parentheses
+    num_bedrooms = num_bedrooms.split("(")[0]
     num_bedrooms = int("".join([c for c in num_bedrooms if c.isdigit()]))
     num_bathrooms = soup.find("div", text=re.compile("bathroom")).text
     num_bathrooms = int("".join([c for c in num_bathrooms if c.isdigit()]))
@@ -171,6 +173,7 @@ def get_rental_property_info(property_url, mls_id):
         "num_bedrooms": num_bedrooms,
         "area": area,
         "unique_id": unique_id,
+        "date": date,
         "property_type": property_type,
         "description": description,
         "url": property_url,
@@ -191,9 +194,9 @@ def get_sale_property_info(property_url, mls_id):
     property_type = property_type.replace("\xa0", " ")
 
     unit_details = soup.find_all("span", attrs={"data-id": "NbUniteFormatted"})
-    unit_description = [detail.text for detail in unit_details if "(" in detail.text][0]
-    num_units = "".join([c for c in unit_description if c.isdigit()])
-    unit_type = "".join([c for c in unit_description if c.isalpha()])
+    unit_descriptions = [detail.text for detail in unit_details if "(" in detail.text][
+        0
+    ]
 
     main_unit_description = [
         detail.text for detail in unit_details if "room" in detail.text
@@ -205,6 +208,10 @@ def get_sale_property_info(property_url, mls_id):
     else:
         num_bathrooms = None
         num_bedrooms = None
+
+    num_residential_units = [
+        detail.text for detail in unit_details if " x " in detail.text
+    ]
 
     claimed_revenue = find_carac_title_element_text(soup, "Potential gross revenue", 4)
     if claimed_revenue is not None:
@@ -269,8 +276,8 @@ def get_sale_property_info(property_url, mls_id):
         "price": price,
         "latitude": latitude,
         "longitude": longitude,
-        "num_units": num_units,
-        "unit_type": unit_type,
+        "unit_descriptions": unit_descriptions,
+        "num_residential_units": num_residential_units,
         "claimed_revenue": claimed_revenue,
         "full_address": full_address,
         "city": city,
@@ -283,6 +290,7 @@ def get_sale_property_info(property_url, mls_id):
         "lot_area": lot_area,
         "parking": parking,
         "pool": pool,
+        "date": date,
         "unique_id": unique_id,
         "property_type": property_type,
         "description": description,
