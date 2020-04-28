@@ -2,7 +2,38 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 
-from project_real_estate.db import sales_data, sales_data_display
+from project_real_estate.constants import COLUMNS_TO_DISPLAY
+from project_real_estate.dash_app.models import rent_model
+from project_real_estate.db import sales_data
+
+
+def _format_data(data):
+    # Keep civic No., street and city
+    data.full_address = data.full_address.apply(lambda x: "".join(x.split(",")[:2]))
+    data.city = data.city.apply(lambda x: x.split("(")[0].strip())
+    data = data.loc[:, COLUMNS_TO_DISPLAY]
+    # Format numerical columns
+    data["price"] = data.price.apply(lambda x: f"${x:,.0f}")
+    data["predicted_rent_revenue"] = data.predicted_rent_revenue.apply(
+        lambda x: f"${x:,.0f}"
+    )
+    data.rename(
+        columns={
+            "full_address": "Address",
+            "city": "City",
+            "price": "Price",
+            "predicted_rent_revenue": "Predicted Rent Revenue",
+            "url": "URL",
+        },
+        inplace=True,
+    )
+    return data
+
+
+predicted_rent_revenue = rent_model.predict(sales_data)
+sales_data_with_predictions = sales_data.join(predicted_rent_revenue, how="inner")
+sales_data_display_with_predictions = _format_data(sales_data_with_predictions)
+
 
 app_header = html.Div(
     [
@@ -18,7 +49,10 @@ property_filter_elements = [
     html.P("What city do you want to look in?", className="control-label"),
     dcc.Dropdown(
         id="city_options",
-        options=[{"label": city, "value": city} for city in sales_data.city.unique()],
+        options=[
+            {"label": city, "value": city}
+            for city in sales_data_display_with_predictions.City.unique()
+        ],
         multi=True,
         value=[],
         className="control",
@@ -156,6 +190,6 @@ reports_section = html.Div(
 
 results_list = dash_table.DataTable(
     id="table",
-    columns=[{"name": i, "id": i} for i in sales_data_display.columns],
+    columns=[{"name": i, "id": i} for i in sales_data_display_with_predictions.columns],
     data=[],
 )

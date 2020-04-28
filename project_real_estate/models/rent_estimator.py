@@ -28,4 +28,6 @@ class SKLearnRentEstimator:
         """
         X, num_units = self._preprocessor.preprocess_sales_data(properties)
         average_rent = self._estimator.predict(X)
-        return average_rent * num_units
+        predicted_revenue = average_rent * num_units
+        predicted_revenue.name = "predicted_rent_revenue"
+        return predicted_revenue
