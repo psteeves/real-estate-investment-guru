@@ -7,9 +7,9 @@ from project_real_estate.dash_app.layout import (
     app_header,
     reports_section,
     results_list,
+    sales_data_display_with_predictions,
     user_inputs,
 )
-from project_real_estate.db import sales_data_display
 from project_real_estate.models.financial_model import TrivialFinancialModel
 from project_real_estate.models.rent_estimator import TrivialRentEstimator
 
@@ -27,9 +27,13 @@ rent_model = TrivialRentEstimator()
 )
 def update_report(city_filters):
     if not city_filters:
-        return sales_data_display.iloc[:MAX_NUM_RESULTS, :].to_dict("rows")
+        return sales_data_display_with_predictions.iloc[:MAX_NUM_RESULTS, :].to_dict(
+            "rows"
+        )
     return (
-        sales_data_display[sales_data_display.City.isin(city_filters)]
+        sales_data_display_with_predictions[
+            sales_data_display_with_predictions.City.isin(city_filters)
+        ]
         .iloc[:MAX_NUM_RESULTS, :]
         .to_dict("rows")
     )
