@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 
-from project_real_estate.constants import COLUMNS_TO_DISPLAY
+from project_real_estate.constants import COLUMNS_TO_DISPLAY, MAX_NUM_RESULTS
 from project_real_estate.dash_app.models import rent_model
 from project_real_estate.db import sales_data
 
@@ -11,11 +11,9 @@ def _format_data(data):
     # Keep civic No., street and city
     data.full_address = data.full_address.apply(lambda x: "".join(x.split(",")[:2]))
     data.city = data.city.apply(lambda x: x.split("(")[0].strip())
-    data = data.loc[:, COLUMNS_TO_DISPLAY]
-    # Format numerical columns
-    data["price"] = data.price.apply(lambda x: f"${x:,.0f}")
-    data["predicted_rent_revenue"] = data.predicted_rent_revenue.apply(
-        lambda x: f"${x:,.0f}"
+    data.price = data["price"].apply(lambda x: round(x, 0))
+    data.predicted_rent_revenue = data["predicted_rent_revenue"].apply(
+        lambda x: round(x, 0)
     )
     data.rename(
         columns={
@@ -31,8 +29,10 @@ def _format_data(data):
 
 
 predicted_rent_revenue = rent_model.predict(sales_data)
-sales_data_with_predictions = sales_data.join(predicted_rent_revenue, how="inner")
-sales_data_display_with_predictions = _format_data(sales_data_with_predictions)
+sales_data_with_rent_predictions = sales_data.join(predicted_rent_revenue, how="inner")
+sales_data_display_with_rent_predictions = _format_data(
+    sales_data_with_rent_predictions
+)
 
 
 app_header = html.Div(
@@ -48,97 +48,107 @@ property_filter_elements = [
     html.P("Property filters", className="control-title"),
     html.P("What city do you want to look in?", className="control-label"),
     dcc.Dropdown(
-        id="city_options",
+        id="city",
         options=[
             {"label": city, "value": city}
-            for city in sales_data_display_with_predictions.City.unique()
+            for city in sales_data_display_with_rent_predictions.City.unique()
         ],
         multi=True,
         value=[],
         className="control",
     ),
-]
-
-
-property_input_elements = [
-    html.P("Property parameters", className="control-title"),
-    html.P("What is your downpayment budget?", className="control-label"),
+    html.P("What is your budget?", className="control-label"),
     dcc.Slider(
-        id="downpayment_budget_slider",
-        min=10,
-        max=500,
-        step=10,
+        id="budget",
+        min=0,
+        max=1000000,
+        step=50000,
+        value=500000,
         marks={
-            10: "$10K",
-            100: "$100K",
-            200: "$200K",
-            300: "$300K",
-            400: "$400K",
-            500: "$500K",
+            0: "$0",
+            250000: "$250K",
+            500000: "$500K",
+            750000: "$750K",
+            1000000: "$1M",
         },
-        # tooltip={"visible": True},
-        className="control",
-    ),
-    html.P(
-        "Other than [TO FILL IN] fees, what is the amount of other fees?",
-        className="control-label",
-    ),
-    dcc.Slider(
-        id="other_fees_rate",
-        min=0,
-        max=10,
-        step=0.5,
-        marks={0: "0%", 5: "5%", 10: "10%"},
-        className="control",
-    ),
-    html.P("What is the tax rate on the property's income?", className="control-label"),
-    dcc.Slider(
-        id="income_tax_rate",
-        min=0,
-        max=20,
-        step=0.5,
-        marks={0: "0%", 10: "10%", 20: "20%"},
         className="control",
     ),
 ]
+
 
 cash_flow_input_elements = [
     html.P("Cash flow parameters", className="control-title"),
-    html.P("What is your yearly rent increase?", className="control-label"),
+    html.P(
+        "How much will you increase your rate by yearly?", className="control-label"
+    ),
     dcc.Slider(
         id="rent_increase",
         min=0,
-        max=5,
-        step=0.1,
-        value=2,
-        marks={0: "0%", 5: "5%"},
-        # tooltip={"visible": True},
+        max=0.1,
+        step=0.01,
+        value=0.02,
+        marks={0: "0%", 0.1: "10%"},
         className="control",
     ),
-    html.P("What is the yearly vacancy rate?"),
+    html.P(
+        "What do you foresee as your expense ratio with respect to gross revenue?",
+        className="control-label",
+    ),
+    dcc.Slider(
+        id="expense_ratio",
+        min=0,
+        max=0.5,
+        step=0.05,
+        value=0.2,
+        marks={0: "0%", 0.25: "25%", 0.5: "50%"},
+        className="control",
+    ),
+    html.P(
+        "What do you foresee as your expense ratio with respect to gross revenue?",
+        className="control-label",
+    ),
+    dcc.Slider(
+        id="yearly_reserves",
+        min=0,
+        max=10000,
+        step=1000,
+        value=1000,
+        marks={0: "1,000$", 5000: "5,000$", 10000: "10,000$"},
+        className="control",
+    ),
+    html.P("What do you foresee as your yearly vacancy rate?"),
     dcc.Slider(
         id="vacancy_rate",
         min=0,
-        max=20,
-        step=1,
-        value=4,
-        marks={0: "0%", 20: "20%"},
-        # tooltip={"visible": True},
+        max=0.2,
+        step=0.01,
+        value=0.04,
+        marks={0: "0%", 0.1: "10%", 0.2: "20%"},
         className="control",
     ),
 ]
 
-mortgage_input_elements = [
-    html.P("Mortgage parameters", className="control-title"),
+
+investment_input_elements = [
+    html.P("Investment parameters", className="control-title"),
+    html.P("What is your downpayment?", className="control-label"),
+    dcc.Slider(
+        id="downpayment",
+        min=0,
+        max=0.3,
+        value=0.1,
+        step=0.05,
+        marks={0: "0%", 0.1: "10%", 0.2: "20%", 0.3: "30%"},
+        className="control",
+    ),
     html.P("What is the interest rate on the mortgage?", className="control-label"),
     dcc.Slider(
-        id="interest_rate_slider",
+        id="interest_rate",
         min=0,
-        max=10,
-        value=8,
-        step=0.01,
-        marks={0: "0%", 5: "5%", 10: "10%"},
-        # tooltip={"visible": True},
+        max=0.1,
+        value=0.08,
+        step=0.001,
+        marks={0: "0%", 0.05: "5%", 0.1: "10%"},
         className="control",
     ),
     html.P("How long is the amortization period?", className="control-label"),
@@ -148,27 +158,26 @@ mortgage_input_elements = [
         placeholder="Amortization period",
         min=0,
         max=50,
-        step=1,
+        step=5,
+        value=20,
         className="control control-input",
     ),
-    html.P("When is the first year of repayment?", className="control-label"),
-    dcc.Input(
-        id="first_year_repayment",
-        type="number",
-        placeholder="First year of repayment",
+    html.P("How much are the closing fees?", className="control-label",),
+    dcc.Slider(
+        id="closing_fees",
         min=0,
-        max=10,
-        value=1,
-        step=1,
-        className="control control-input",
+        max=0.1,
+        step=0.01,
+        value=0.02,
+        marks={0: "0%", 0.05: "5%", 0.1: "10%"},
+        className="control",
     ),
 ]
 
 user_inputs = html.Div(
     [
         html.Div(property_filter_elements, className="pretty-container"),
-        html.Div(property_input_elements, className="pretty-container"),
-        html.Div(mortgage_input_elements, className="pretty-container"),
+        html.Div(investment_input_elements, className="pretty-container"),
         html.Div(cash_flow_input_elements, className="pretty-container"),
     ],
     id="model-inputs",
@@ -178,8 +187,8 @@ reports_section = html.Div(
     [
         html.H2("Investment report", className="control-title"),
         html.P(
-            f"By investing in this property, your discounted average ROI over the next 25 years is estimated "
-            f"to be between {11.1} and {14.2}%, which represents net returns of ${670_100:,} to ${980_400:,}",
+            f"Below is a list of the top {MAX_NUM_RESULTS} properties that fit your requirements, with respect to Return on Equity."
+            "Return on equity is average over your amortization period.",
             id="reports-text",
         ),
     ],
@@ -189,7 +198,5 @@ reports_section = html.Div(
 
 
 results_list = dash_table.DataTable(
-    id="table",
-    columns=[{"name": i, "id": i} for i in sales_data_display_with_predictions.columns],
-    data=[],
+    id="table", columns=[{"name": i, "id": i} for i in COLUMNS_TO_DISPLAY], data=[],
 )
