@@ -11,10 +11,15 @@ def _format_data(data):
     # Keep civic No., street and city
     data.full_address = data.full_address.apply(lambda x: "".join(x.split(",")[:2]))
     data.city = data.city.apply(lambda x: x.split("(")[0].strip())
+
+    # Round dollar amounts
     data.price = data["price"].apply(lambda x: round(x, 0))
     data.predicted_rent_revenue = data["predicted_rent_revenue"].apply(
         lambda x: round(x, 0)
     )
+
+    # Make URL markdown
+    data.url = data.url.apply(lambda x: "[Centris Link](" + x + ")")
     data.rename(
         columns={
             "full_address": "Address",
@@ -187,7 +192,18 @@ reports_section = html.Div(
     id="reports-section",
 )
 
-
 results_list = dash_table.DataTable(
-    id="table", columns=[{"name": i, "id": i} for i in COLUMNS_TO_DISPLAY], data=[],
+    id="table",
+    columns=[{"name": i, "id": i, "type": "text", "presentation": "markdown"} for i in COLUMNS_TO_DISPLAY],
+    data=[],
+    style_cell_conditional=[
+        {"if": {"column_id": c}, "textAlign": "left"}
+        for c in ["Address", "City", "URL"]
+    ],
+    style_data_conditional=[
+        {"if": {"row_index": "odd"}, "backgroundColor": "rgb(248, 248, 248)"}
+    ],
+    style_as_list_view=True,
+    style_cell={"padding": "15px"},
+    style_header={"fontWeight": "bold"},
 )

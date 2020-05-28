@@ -41,6 +41,8 @@ body {
 
 .control {
   margin-bottom: 25px;
+  padding-right: 10px;
+  padding-left: 10px;
 }
 
 .control-input {
