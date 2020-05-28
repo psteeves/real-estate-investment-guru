@@ -11,10 +11,15 @@ def _format_data(data):
     # Keep civic No., street and city
     data.full_address = data.full_address.apply(lambda x: "".join(x.split(",")[:2]))
     data.city = data.city.apply(lambda x: x.split("(")[0].strip())
+
+    # Round dollar amounts
     data.price = data["price"].apply(lambda x: round(x, 0))
     data.predicted_rent_revenue = data["predicted_rent_revenue"].apply(
         lambda x: round(x, 0)
     )
+
+    # Make URL markdown
+    data.url = data.url.apply(lambda x: "[Centris Link](" + x + ")")
     data.rename(
         columns={
             "full_address": "Address",
@@ -46,7 +51,7 @@ app_header = html.Div(
 
 property_filter_elements = [
     html.P("Property filters", className="control-title"),
-    html.P("What city do you want to look in?", className="control-label"),
+    html.P("City", className="control-label"),
     dcc.Dropdown(
         id="city",
         options=[
@@ -57,7 +62,7 @@ property_filter_elements = [
         value=[],
         className="control",
     ),
-    html.P("What is your budget?", className="control-label"),
+    html.P("Budget", className="control-label"),
     dcc.Slider(
         id="budget",
         min=0,
@@ -78,9 +83,7 @@ property_filter_elements = [
 
 cash_flow_input_elements = [
     html.P("Cash flow parameters", className="control-title"),
-    html.P(
-        "How much will you increase your rate by yearly?", className="control-label"
-    ),
+    html.P("Yearly rent increase", className="control-label"),
     dcc.Slider(
         id="rent_increase",
         min=0,
@@ -90,10 +93,7 @@ cash_flow_input_elements = [
         marks={0: "0%", 0.1: "10%"},
         className="control",
     ),
-    html.P(
-        "What do you foresee as your expense ratio with respect to gross revenue?",
-        className="control-label",
-    ),
+    html.P("Expense ratio w.r.t gross revenue", className="control-label",),
     dcc.Slider(
         id="expense_ratio",
         min=0,
@@ -103,10 +103,7 @@ cash_flow_input_elements = [
         marks={0: "0%", 0.25: "25%", 0.5: "50%"},
         className="control",
     ),
-    html.P(
-        "What do you foresee as your expense ratio with respect to gross revenue?",
-        className="control-label",
-    ),
+    html.P("Yearly cash reserves", className="control-label",),
     dcc.Slider(
         id="yearly_reserves",
         min=0,
@@ -116,7 +113,7 @@ cash_flow_input_elements = [
         marks={0: "1,000$", 5000: "5,000$", 10000: "10,000$"},
         className="control",
     ),
-    html.P("What do you foresee as your yearly vacancy rate?"),
+    html.P("Vacancy rate"),
     dcc.Slider(
         id="vacancy_rate",
         min=0,
@@ -131,7 +128,7 @@ cash_flow_input_elements = [
 
 investment_input_elements = [
     html.P("Investment parameters", className="control-title"),
-    html.P("What is your downpayment?", className="control-label"),
+    html.P("Downpayment", className="control-label"),
     dcc.Slider(
         id="downpayment",
         min=0,
@@ -141,7 +138,7 @@ investment_input_elements = [
         marks={0: "0%", 0.1: "10%", 0.2: "20%", 0.3: "30%"},
         className="control",
     ),
-    html.P("What is the interest rate on the mortgage?", className="control-label"),
+    html.P("Mortgage interest rate", className="control-label"),
     dcc.Slider(
         id="interest_rate",
         min=0,
@@ -151,7 +148,7 @@ investment_input_elements = [
         marks={0: "0%", 0.05: "5%", 0.1: "10%"},
         className="control",
     ),
-    html.P("How long is the amortization period?", className="control-label"),
+    html.P("Amortization period", className="control-label"),
     dcc.Input(
         id="amortization_period",
         type="number",
@@ -162,7 +159,7 @@ investment_input_elements = [
         value=20,
         className="control control-input",
     ),
-    html.P("How much are the closing fees?", className="control-label",),
+    html.P("Total closing fees", className="control-label",),
     dcc.Slider(
         id="closing_fees",
         min=0,
@@ -187,8 +184,7 @@ reports_section = html.Div(
     [
         html.H2("Investment report", className="control-title"),
         html.P(
-            f"Below is a list of the top {MAX_NUM_RESULTS} properties that fit your requirements, with respect to Return on Equity."
-            "Return on equity is average over your amortization period.",
+            f"Top {MAX_NUM_RESULTS} properties that fit your requirements, with respect to Return on Equity (average over amortization period).",
             id="reports-text",
         ),
     ],
@@ -196,7 +192,18 @@ reports_section = html.Div(
     id="reports-section",
 )
 
-
 results_list = dash_table.DataTable(
-    id="table", columns=[{"name": i, "id": i} for i in COLUMNS_TO_DISPLAY], data=[],
+    id="table",
+    columns=[{"name": i, "id": i, "type": "text", "presentation": "markdown"} for i in COLUMNS_TO_DISPLAY],
+    data=[],
+    style_cell_conditional=[
+        {"if": {"column_id": c}, "textAlign": "left"}
+        for c in ["Address", "City", "URL"]
+    ],
+    style_data_conditional=[
+        {"if": {"row_index": "odd"}, "backgroundColor": "rgb(248, 248, 248)"}
+    ],
+    style_as_list_view=True,
+    style_cell={"padding": "15px"},
+    style_header={"fontWeight": "bold"},
 )
