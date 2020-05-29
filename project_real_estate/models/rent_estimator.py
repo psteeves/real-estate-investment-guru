@@ -24,10 +24,20 @@ class SKLearnRentEstimator:
 
     def predict(self, properties):
         """
+        Predict the potential revenue for a property. We take the minimum of the estimated gross revenue on Centris and
+        our prediction.
+
         :param properties: Properties for sale.
         """
-        X, num_units = self._preprocessor.preprocess_sales_data(properties)
+        (
+            X,
+            num_units,
+            centris_claimed_revenue,
+        ) = self._preprocessor.preprocess_sales_data(properties)
         average_rent = self._estimator.predict(X)
         predicted_revenue = average_rent * num_units
+
+        # Take minimum of prediction and Centris prediction
+        predicted_revenue = predicted_revenue.combine(centris_claimed_revenue, func=min)
         predicted_revenue.name = "predicted_rent_revenue"
         return predicted_revenue

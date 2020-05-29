@@ -125,4 +125,8 @@ class PropertyPreprocessor:
         data["year_built"] = data.year_built.apply(self._convert_year_built)
         data = self._conform_sales_data_to_rent_schema(data)
         data = self._filter_data(data)
-        return data.loc[:, self._features], data.loc[:, "num_units"]
+        return (
+            data.loc[:, self._features],
+            data.loc[:, "num_units"],
+            data.loc[:, "claimed_revenue"],
+        )
