@@ -5,7 +5,8 @@ from sqlalchemy import create_engine
 
 
 def _pull_data(table_name, max_rows=30000):
-    db_uri = os.environ["DB_URI"]
+    #db_uri = os.environ["DB_URI"]
+    db_uri = "postgresql://nem_pat_1:7Z4kHjqk2G9@project-real-estate.chuhvt8ouikx.ca-central-1.rds.amazonaws.com:5432/project_real_estate"
     engine = create_engine(db_uri)
     sql = f"SELECT * FROM {table_name} LIMIT {max_rows};"
     data = pd.read_sql(sql=sql, con=engine)

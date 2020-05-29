@@ -43,13 +43,18 @@ sales_data_display_with_rent_predictions = _format_data(
 app_header = html.Div(
     [
         html.H1("Real Estate Investment Guru", id="app-title"),
-        html.H3("A tool to help guide your investment decisions", id="app-subtitle"),
+        html.H3("A tool to help you find profitable investment opportunities", id="app-subtitle"),
     ],
     id="app-header",
 )
 
 
 property_filter_elements = [
+    html.P("About the App", className="control-title"),
+    html.P(""" This App helps you quickly find the best investment opportunities by continually
+    scanning the web for profitable properties, based on your requirements. The app will analyze 
+    your preferred property types, predict potential rent revenue, and return the top investment
+    opportunities based on Return on Equity."""),
     html.P("Property filters", className="control-title"),
     html.P("City", className="control-label"),
     dcc.Dropdown(
@@ -90,83 +95,84 @@ cash_flow_input_elements = [
         max=0.1,
         step=0.01,
         value=0.02,
-        marks={0: "0%", 0.1: "10%"},
+        marks={0: "0%", 0.02: "2%", 0.04: "4%", 0.06: "6%", 0.08: "8%", 0.1: "10%"},
         className="control",
     ),
-    html.P("Expense ratio w.r.t gross revenue", className="control-label",),
+    html.P("Expenses as percentage of yearly gross revenue", className="control-label",),
     dcc.Slider(
         id="expense_ratio",
         min=0,
         max=0.5,
         step=0.05,
         value=0.2,
-        marks={0: "0%", 0.25: "25%", 0.5: "50%"},
+        marks={0: "0%", 0.1: "10%", 0.2: "20%", 0.3: "30%", 0.4: "40%", 0.5: "50%"},
         className="control",
     ),
     html.P("Yearly cash reserves", className="control-label",),
     dcc.Slider(
         id="yearly_reserves",
         min=0,
-        max=10000,
-        step=1000,
-        value=1000,
-        marks={0: "1,000$", 5000: "5,000$", 10000: "10,000$"},
+        max=50000,
+        step=5000,
+        value=10000,
+        marks={0: "0$", 10000: "10,000$", 20000: "20,000$", 30000: "30,000$", 40000: "40,000$", 50000: "50,000$"},
         className="control",
     ),
-    html.P("Vacancy rate"),
+    html.P("Yearly vacancy rate"),
     dcc.Slider(
         id="vacancy_rate",
         min=0,
         max=0.2,
-        step=0.01,
+        step=0.02,
         value=0.04,
-        marks={0: "0%", 0.1: "10%", 0.2: "20%"},
+        marks={0: "0%", 0.04: "4%", 0.08: "8%", 0.12: "12%", 0.16: "16%", 0.2: "20%"},
         className="control",
     ),
 ]
 
 
 investment_input_elements = [
-    html.P("Investment parameters", className="control-title"),
-    html.P("Downpayment", className="control-label"),
-    dcc.Slider(
-        id="downpayment",
-        min=0,
-        max=0.3,
-        value=0.1,
-        step=0.05,
-        marks={0: "0%", 0.1: "10%", 0.2: "20%", 0.3: "30%"},
-        className="control",
-    ),
-    html.P("Mortgage interest rate", className="control-label"),
-    dcc.Slider(
-        id="interest_rate",
-        min=0,
-        max=0.1,
-        value=0.08,
-        step=0.001,
-        marks={0: "0%", 0.05: "5%", 0.1: "10%"},
-        className="control",
-    ),
-    html.P("Amortization period", className="control-label"),
+    html.P("Deal parameters", className="control-title"),
+    html.P("Downpayment (in decimals)", className="control-label"),
     dcc.Input(
-        id="amortization_period",
+        id="downpayment",
         type="number",
-        placeholder="Amortization period",
+        placeholder="Downpayment",
         min=0,
-        max=50,
-        step=5,
-        value=20,
+        max=1,
+        step=0.05,
+        value=0.2,
         className="control control-input",
     ),
-    html.P("Total closing fees", className="control-label",),
+    html.P("Mortgage interest rate (in decimals)", className="control-label"),
+    dcc.Input(
+        id="interest_rate",
+        type="number",
+        placeholder="Interest rate",
+        min=0,
+        max=0.2,
+        step=0.001,
+        value=0.03,
+        className="control control-input",
+    ),
+    html.P("Amortization period", className="control-label"),
+    dcc.Slider(
+        id="amortization_period",
+        min=0,
+        max=25,
+        step=5,
+        value=20,
+        marks={0: "0yrs", 5: "5yrs", 10: "10yrs", 15: "15yrs", 20: "20yrs", 25: "25yrs"},
+        className="control",
+    ),
+    html.P("Closing fees as % of purchase price", className="control-label",),
     dcc.Slider(
         id="closing_fees",
         min=0,
-        max=0.1,
+        max=0.05,
         step=0.01,
-        value=0.02,
-        marks={0: "0%", 0.05: "5%", 0.1: "10%"},
+        value=0.03,
+        marks={0: "0%", 0.01: "1%", 0.02: "2%", 0.03: "3%", 0.04: "4%", 0.05: "5%"},
         className="control",
     ),
 ]
@@ -184,8 +190,17 @@ reports_section = html.Div(
     [
         html.H2("Investment report", className="control-title"),
         html.P(
-            f"Top {MAX_NUM_RESULTS} properties that fit your requirements, with respect to Return on Equity (average over amortization period).",
+            f"The below report shows the top {MAX_NUM_RESULTS} properties that fit your requirements, "
+            f"fitlered by Return on Equity (average return over the amortization period).",
             id="reports-text",
+        ),
+        html.P(
+            f"The App's financial model takes the filtered properties and predicts their potential gross rental "
+            f"revenue by analyzing comparable rental market data in real-time. Once the potential gross revenue"
+            f" is estimated, the App factors in various cash flow components (such as mortgage insurance premiums,"
+            f" closing fees, capital expenses, etc.) to establish an estimated average yearly Return on Equity over the"
+            f" loan amortization period.",
+            id="reports-text-2",
         ),
     ],
     className="pretty-container",

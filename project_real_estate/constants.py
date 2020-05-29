@@ -7,7 +7,7 @@ COLUMNS_TO_DISPLAY = [
     "Price",
     "Predicted Rent Revenue",
     "Cash on Cash Return",
-    "Equity Return on Investment",
+    "Return on Equity",
     "URL",
 ]
 ALLOWED_PROPERTY_TYPES = ["Condo / Apartment", "Loft / Studio"]
