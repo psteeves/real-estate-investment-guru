@@ -194,7 +194,10 @@ reports_section = html.Div(
 
 results_list = dash_table.DataTable(
     id="table",
-    columns=[{"name": i, "id": i, "type": "text", "presentation": "markdown"} for i in COLUMNS_TO_DISPLAY],
+    columns=[
+        {"name": i, "id": i, "type": "text", "presentation": "markdown"}
+        for i in COLUMNS_TO_DISPLAY
+    ],
     data=[],
     style_cell_conditional=[
         {"if": {"column_id": c}, "textAlign": "left"}

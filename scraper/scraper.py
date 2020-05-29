@@ -315,10 +315,10 @@ def _load_chrome_browser(local: bool):
     return webdriver.Chrome(driver_locatino, options=chrome_options)
 
 
-def _save_results_to_aws(data, task):
+def _save_results_to_aws(data, task, if_exists):
     uri = os.environ["DB_URI"]
     engine = create_engine(uri)
-    data.to_sql(name=task, con=engine, if_exists="append", index=False)
+    data.to_sql(name=task, con=engine, if_exists=if_exists, index=False)
 
 
 def main():
@@ -346,7 +346,10 @@ def main():
     # Enter values in DF
     df = pd.DataFrame(data)
 
-    _save_results_to_aws(df, task)
+    _save_results_to_aws(df, task, "append")
+    if task == "sales":
+        _save_results_to_aws(df, "latest_sales", "replace")
+
     print("Pushed results to AWS")
 
 
