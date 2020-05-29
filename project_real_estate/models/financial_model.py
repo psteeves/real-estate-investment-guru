@@ -59,7 +59,7 @@ class SimpleFinancialModel:
             rate=self._interest_rate,
             per=[i + 1 for i in range(self._forecast_horizon)],
             nper=self._amortization,
-            pv=loan_principal,
+            pv=-loan_principal,
         )
         property_taxes = np.array(
             [self._property_tax * property_value] * self._forecast_horizon
@@ -97,19 +97,24 @@ class SimpleFinancialModel:
             rate=self._interest_rate,
             per=[i + 1 for i in range(self._forecast_horizon)],
             nper=self._amortization,
-            pv=loan_principal,
+            pv=-loan_principal,
         )
-        yearly_reserves = [-self._yearly_savings] * self._forecast_horizon
+        yearly_reserves = [self._yearly_savings] * self._forecast_horizon
 
-        net_equity = net_income + yearly_reserves
-        net_cash_flow = net_equity + principal_repayments
+        net_cash_flow = net_income - principal_repayments - yearly_reserves
+        net_equity = net_cash_flow + principal_repayments
 
         cash_on_cash_return = net_cash_flow / total_investment
         return_on_equity = net_equity / total_investment
-        return cash_on_cash_return.mean(), return_on_equity.mean()
+
+        mortg_premium = self._mortgage_premium * price
+        gross_revenue = (monthly_rent * 12) * (1 + self._vacancy)
+
+        return total_investment, mortg_premium, gross_revenue, net_income.mean(), net_cash_flow.mean(), cash_on_cash_return.mean(), return_on_equity.mean()
 
     def predict(self, properties):
         properties[
-            ["Cash on Cash Return", "Return on Equity"]
+            ["Initial Investment", "Mrtg. Premium", "Gross Revenue", "Net Income", "Net Cash",
+             "Cash Return", "ROE"]
         ] = properties.apply(self._predict, axis=1, result_type="expand")
         return properties
