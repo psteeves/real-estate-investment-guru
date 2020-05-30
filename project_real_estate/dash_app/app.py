@@ -71,35 +71,24 @@ def predict_roi(
         yearly_reserves=yearly_reserves,
     )
     prediction = finance_model.predict(sales_under_budget).loc[:, COLUMNS_TO_DISPLAY]
-    prediction = prediction.sort_values(
-        by="ROE", ascending=False
+    prediction = prediction.sort_values(by="ROE", ascending=False)
+    prediction["ROE"] = prediction["ROE"].apply(lambda x: f"{x:.1%}")
+
+    prediction["Cash Return"] = prediction["Cash Return"].apply(lambda x: f"{x:.1%}")
+
+    prediction["Initial Investment"] = prediction["Initial Investment"].apply(
+        lambda x: f"{x:,.0f}"
     )
-    prediction["ROE"] = prediction[
-        "ROE"
-    ].apply(lambda x: f"{x:.1%}")
 
-    prediction["Cash Return"] = prediction["Cash Return"].apply(
-        lambda x: f"{x:.1%}")
+    prediction["Gross Revenue"] = prediction["Gross Revenue"].apply(
+        lambda x: f"{x:,.0f}"
+    )
 
-    prediction["Initial Investment"] = prediction[
-        "Initial Investment"
-    ].apply(lambda x: f"{x:,.0f}")
+    prediction["Net Income"] = prediction["Net Income"].apply(lambda x: f"{x:,.0f}")
 
-    prediction["Gross Revenue"] = prediction[
-        "Gross Revenue"
-    ].apply(lambda x: f"{x:,.0f}")
+    prediction["Net Cash"] = prediction["Net Cash"].apply(lambda x: f"{x:,.0f}")
 
-    prediction["Net Income"] = prediction[
-        "Net Income"
-    ].apply(lambda x: f"{x:,.0f}")
-
-    prediction["Net Cash"] = prediction[
-        "Net Cash"
-    ].apply(lambda x: f"{x:,.0f}")
-
-    prediction["Price"] = prediction[
-        "Price"
-    ].apply(lambda x: f"{x:,.0f}")
+    prediction["Price"] = prediction["Price"].apply(lambda x: f"{x:,.0f}")
 
     return prediction.iloc[:MAX_NUM_RESULTS].to_dict("rows")
 

@@ -81,6 +81,7 @@ class SimpleFinancialModel:
         return loan_principal, downpayment, closing_fees
 
     def _predict(self, properties):
+        # TODO break this up into smaller functions per column
         price = properties["Price"]
         monthly_rent = properties["Predicted Rent Revenue"]
 
@@ -108,13 +109,30 @@ class SimpleFinancialModel:
         return_on_equity = net_equity / total_investment
 
         mortg_premium = self._mortgage_premium * price
+        
+        # TODO average this over all years to incorporate rent increase
         gross_revenue = (monthly_rent * 12) * (1 + self._vacancy)
 
-        return total_investment, mortg_premium, gross_revenue, net_income.mean(), net_cash_flow.mean(), cash_on_cash_return.mean(), return_on_equity.mean()
+        return (
+            total_investment,
+            mortg_premium,
+            gross_revenue,
+            net_income.mean(),
+            net_cash_flow.mean(),
+            cash_on_cash_return.mean(),
+            return_on_equity.mean(),
+        )
 
     def predict(self, properties):
         properties[
-            ["Initial Investment", "Mrtg. Premium", "Gross Revenue", "Net Income", "Net Cash",
-             "Cash Return", "ROE"]
+            [
+                "Initial Investment",
+                "Mrtg. Premium",
+                "Gross Revenue",
+                "Net Income",
+                "Net Cash",
+                "Cash Return",
+                "ROE",
+            ]
         ] = properties.apply(self._predict, axis=1, result_type="expand")
         return properties
