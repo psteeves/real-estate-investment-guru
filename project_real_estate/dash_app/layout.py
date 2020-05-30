@@ -191,7 +191,7 @@ reports_section = html.Div(
         html.H2("Investment report", className="control-title"),
         html.P(
             f"The below report shows the top {MAX_NUM_RESULTS} properties that fit your requirements, "
-            f"fitlered by Return on Equity (average return over the amortization period).",
+            f"sorted by Return on Equity (average return over the amortization period).",
             id="reports-text",
         ),
         html.P(
