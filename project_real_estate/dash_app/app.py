@@ -72,10 +72,10 @@ def predict_roi(
     )
     prediction = finance_model.predict(sales_under_budget).loc[:, COLUMNS_TO_DISPLAY]
     prediction = prediction.sort_values(
-        by="Equity Return on Investment", ascending=False
+        by="Return on Equity", ascending=False
     )
-    prediction["Equity Return on Investment"] = prediction[
-        "Equity Return on Investment"
+    prediction["Return on Equity"] = prediction[
+        "Return on Equity"
     ].apply(lambda x: f"{x:.1%}")
     prediction["Cash on Cash Return"] = prediction["Cash on Cash Return"].apply(
         lambda x: f"{x:.1%}"

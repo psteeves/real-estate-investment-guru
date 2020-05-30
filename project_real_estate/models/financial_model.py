@@ -110,6 +110,6 @@ class SimpleFinancialModel:
 
     def predict(self, properties):
         properties[
-            ["Cash on Cash Return", "Equity Return on Investment"]
+            ["Cash on Cash Return", "Return on Equity"]
         ] = properties.apply(self._predict, axis=1, result_type="expand")
         return properties
