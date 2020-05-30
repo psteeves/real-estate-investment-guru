@@ -2,12 +2,14 @@ from pathlib import Path
 
 MAX_NUM_RESULTS = 20
 COLUMNS_TO_DISPLAY = [
-    "Address",
     "City",
     "Price",
-    "Predicted Rent Revenue",
-    "Cash on Cash Return",
-    "Return on Equity",
+    "Initial Investment",
+    "Gross Revenue",
+    "Net Income",
+    "Net Cash",
+    "Cash Return",
+    "ROE",
     "URL",
 ]
 ALLOWED_PROPERTY_TYPES = ["Condo / Apartment", "Loft / Studio"]

@@ -19,10 +19,10 @@ def _format_data(data):
     )
 
     # Make URL markdown
-    data.url = data.url.apply(lambda x: "[Centris Link](" + x + ")")
+    data.url = data.url.apply(lambda x: "[Property Listing](" + x + ")")
     data.rename(
         columns={
-            "full_address": "Address",
+            "property_type": "Property Type",
             "city": "City",
             "price": "Price",
             "predicted_rent_revenue": "Predicted Rent Revenue",
@@ -43,7 +43,10 @@ sales_data_display_with_rent_predictions = _format_data(
 app_header = html.Div(
     [
         html.H1("Real Estate Investment Guru", id="app-title"),
-        html.H3("A tool to help you find profitable investment opportunities", id="app-subtitle"),
+        html.H3(
+            "A tool to help you find profitable investment opportunities",
+            id="app-subtitle",
+        ),
     ],
     id="app-header",
 )
@@ -51,10 +54,12 @@ app_header = html.Div(
 
 property_filter_elements = [
     html.P("About the App", className="control-title"),
-    html.P(""" This App helps you quickly find the best investment opportunities by continually
+    html.P(
+        """ This App helps you quickly find the best investment opportunities by continually
     scanning the web for profitable properties, based on your requirements. The app will analyze 
     your preferred property types, predict potential rent revenue, and return the top investment
-    opportunities based on Return on Equity."""),
+    opportunities based on Return on Equity."""
+    ),
     html.P("Property filters", className="control-title"),
     html.P("City", className="control-label"),
     dcc.Dropdown(
@@ -98,7 +103,9 @@ cash_flow_input_elements = [
         marks={0: "0%", 0.02: "2%", 0.04: "4%", 0.06: "6%", 0.08: "8%", 0.1: "10%"},
         className="control",
     ),
-    html.P("Expenses as percentage of yearly gross revenue", className="control-label",),
+    html.P(
+        "Expenses as percentage of yearly gross revenue", className="control-label",
+    ),
     dcc.Slider(
         id="expense_ratio",
         min=0,
@@ -115,7 +122,14 @@ cash_flow_input_elements = [
         max=50000,
         step=5000,
         value=10000,
-        marks={0: "0$", 10000: "10,000$", 20000: "20,000$", 30000: "30,000$", 40000: "40,000$", 50000: "50,000$"},
+        marks={
+            0: "0$",
+            10000: "10,000$",
+            20000: "20,000$",
+            30000: "30,000$",
+            40000: "40,000$",
+            50000: "50,000$",
+        },
         className="control",
     ),
     html.P("Yearly vacancy rate"),
@@ -133,6 +147,7 @@ cash_flow_input_elements = [
 
 investment_input_elements = [
     html.P("Deal parameters", className="control-title"),
+    # TODO have input be in percentage instead of decimals
     html.P("Downpayment (in decimals)", className="control-label"),
     dcc.Input(
         id="downpayment",
@@ -141,9 +156,10 @@ investment_input_elements = [
         min=0,
         max=1,
         step=0.05,
-        value=0.2,
+        value=0.15,
         className="control control-input",
     ),
+    # TODO have input be in percentage instead of decimals
     html.P("Mortgage interest rate (in decimals)", className="control-label"),
     dcc.Input(
         id="interest_rate",
@@ -162,7 +178,14 @@ investment_input_elements = [
         max=25,
         step=5,
         value=20,
-        marks={0: "0yrs", 5: "5yrs", 10: "10yrs", 15: "15yrs", 20: "20yrs", 25: "25yrs"},
+        marks={
+            0: "0yrs",
+            5: "5yrs",
+            10: "10yrs",
+            15: "15yrs",
+            20: "20yrs",
+            25: "25yrs",
+        },
         className="control",
     ),
     html.P("Closing fees as % of purchase price", className="control-label",),
@@ -191,7 +214,7 @@ reports_section = html.Div(
         html.H2("Investment report", className="control-title"),
         html.P(
             f"The below report shows the top {MAX_NUM_RESULTS} properties that fit your requirements, "
-            f"sorted by Return on Equity (average return over the amortization period).",
+            f"sorted by Return on Equity (averageed over the amortization period).",
             id="reports-text",
         ),
         html.P(
@@ -204,6 +227,7 @@ reports_section = html.Div(
         ),
     ],
     className="pretty-container",
+    style={"margin-bottom": "40px"},
     id="reports-section",
 )
 
@@ -214,14 +238,21 @@ results_list = dash_table.DataTable(
         for i in COLUMNS_TO_DISPLAY
     ],
     data=[],
+    fixed_rows={"headers": True, "data": 0},
     style_cell_conditional=[
-        {"if": {"column_id": c}, "textAlign": "left"}
-        for c in ["Address", "City", "URL"]
+        {"if": {"column_id": c}, "textAlign": "left"} for c in COLUMNS_TO_DISPLAY
     ],
     style_data_conditional=[
-        {"if": {"row_index": "odd"}, "backgroundColor": "rgb(248, 248, 248)"}
+        {"if": {"row_index": "odd"}, "backgroundColor": "rgb(248, 248, 248)"},
     ],
     style_as_list_view=True,
     style_cell={"padding": "15px"},
-    style_header={"fontWeight": "bold"},
+    style_header={
+        "fontWeight": "bold",
+        "font-size": "16px",
+        "padding": "15px",
+        "border": "3px solid black",
+        "whiteSpace": "normal",
+        "height": "auto",
+    },
 )
