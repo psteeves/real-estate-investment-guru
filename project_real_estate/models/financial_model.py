@@ -109,7 +109,7 @@ class SimpleFinancialModel:
         return_on_equity = net_equity / total_investment
 
         mortg_premium = self._mortgage_premium * price
-        
+
         # TODO average this over all years to incorporate rent increase
         gross_revenue = (monthly_rent * 12) * (1 + self._vacancy)
 
