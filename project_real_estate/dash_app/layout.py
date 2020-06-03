@@ -4,7 +4,7 @@ import dash_table
 
 from project_real_estate.constants import COLUMNS_TO_DISPLAY, MAX_NUM_RESULTS
 from project_real_estate.dash_app.models import rent_model
-from project_real_estate.db import sales_data
+from project_real_estate.db import pull_data
 
 
 def _format_data(data):
@@ -33,6 +33,7 @@ def _format_data(data):
     return data
 
 
+sales_data = pull_data("latest_sales", max_rows=None)
 predicted_rent_revenue = rent_model.predict(sales_data)
 sales_data_with_rent_predictions = sales_data.join(predicted_rent_revenue, how="inner")
 sales_data_display_with_rent_predictions = _format_data(
