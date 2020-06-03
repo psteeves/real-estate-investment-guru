@@ -7,7 +7,7 @@ format:
 	poetry run black $(SOURCE_DIRECTORIES)
 
 serve-local:
-	DB_URI=$(DB_URI) python -m project_real_estate.dash_app.app
+	DB_URI=$(DB_URI) poetry run python -m project_real_estate.dash_app.app
 
 serve: 
-	gunicorn --chdir project_real_estate/dash_app/ app:server
+	DB_URI=$(DB_URI) gunicorn --chdir project_real_estate/dash_app/ app:server

@@ -58,7 +58,7 @@ def predict_roi(
             sales_data_display_with_rent_predictions.City.isin(city_filters)
         ]
 
-    sales_under_budget = sales_by_city[sales_by_city.Price < budget]
+    sales_under_budget = sales_by_city[(sales_by_city.Price > budget[0]) & (sales_by_city.Price < budget[1])]
 
     finance_model = SimpleFinancialModel(
         downpayment=downpayment,
