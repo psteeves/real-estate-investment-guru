@@ -111,7 +111,7 @@ class SimpleFinancialModel:
         mortg_premium = self._mortgage_premium * price
 
         # TODO average this over all years to incorporate rent increase
-        gross_revenue = (monthly_rent * 12) * (1 + self._vacancy)
+        gross_revenue = (monthly_rent * 12) * (1 - self._vacancy)
 
         return (
             total_investment,
