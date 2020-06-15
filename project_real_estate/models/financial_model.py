@@ -41,7 +41,9 @@ class SimpleFinancialModel:
         self._property_tax = 0.013
         self._income_tax_rate = 0.3
 
-    def _forecast_income(self, monthly_rent, loan_principal, property_value):
+    def _forecast_income(
+        self, monthly_rent, loan_principal, property_value, expense_ratio
+    ):
         """
         Predict gross revenue and net income.
         :return: Gross revenue and net income.
@@ -58,7 +60,7 @@ class SimpleFinancialModel:
         )
 
         # Expenses
-        expenses = self._expense_ratio * gross_rent_income
+        expenses = expense_ratio * gross_rent_income
         interest_payments = np.ipmt(
             rate=self._interest_rate,
             per=[i + 1 for i in range(self._forecast_horizon)],
@@ -78,9 +80,9 @@ class SimpleFinancialModel:
 
         return gross_rent_income, net_income
 
-    def _predict(self, properties):
-        price = properties["Price"]
-        monthly_rent = properties["Predicted Rent Revenue"]
+    def _predict(self, prop):
+        price = prop["Price"]
+        monthly_rent = prop["Predicted Rent Revenue"]
 
         downpayment = price * self._downpayment
         closing_fees = self._closing_fees * price
@@ -88,10 +90,16 @@ class SimpleFinancialModel:
 
         loan_principal = (1 + self._mortgage_premium) * price - downpayment
 
+        # Multiply expense ratio by 1.5 for older properties
+        property_expense_ratio = (
+            self._expense_ratio if prop.year_built > 2010 else self._expense_ratio * 1.5
+        )
+
         gross_revenue, net_income = self._forecast_income(
             monthly_rent=monthly_rent,
             loan_principal=loan_principal,
             property_value=price,
+            expense_ratio=property_expense_ratio,
         )
 
         principal_repayments = np.ppmt(

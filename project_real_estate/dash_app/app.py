@@ -26,18 +26,15 @@ rent_model = TrivialRentEstimator()
 
 @app.callback(
     Output(component_id="forecast_horizon", component_property="max"),
-    [
-        Input(component_id="amortization_period", component_property="value"),
-    ],
+    [Input(component_id="amortization_period", component_property="value"),],
 )
 def update_max_forecast_horizon(amortization_period):
     return amortization_period
 
+
 @app.callback(
     Output(component_id="forecast_horizon", component_property="value"),
-    [
-        Input(component_id="forecast_horizon", component_property="max"),
-    ],
+    [Input(component_id="forecast_horizon", component_property="max"),],
 )
 def update_value_forecast_horizon(max_value):
     return max_value
@@ -79,7 +76,9 @@ def predict_roi(
             sales_data_display_with_rent_predictions.City.isin(city_filters)
         ]
 
-    sales_under_budget = sales_by_city[(sales_by_city.Price > budget[0]) & (sales_by_city.Price < budget[1])]
+    sales_under_budget = sales_by_city[
+        (sales_by_city.Price > budget[0]) & (sales_by_city.Price < budget[1])
+    ]
 
     # Convert percentages to decimals
     downpayment /= 100
