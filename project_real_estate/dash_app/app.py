@@ -81,6 +81,10 @@ def predict_roi(
 
     sales_under_budget = sales_by_city[(sales_by_city.Price > budget[0]) & (sales_by_city.Price < budget[1])]
 
+    # Convert percentages to decimals
+    downpayment /= 100
+    interest_rate /= 100
+
     finance_model = SimpleFinancialModel(
         downpayment=downpayment,
         closing_fees=closing_fees,
