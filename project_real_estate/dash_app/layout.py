@@ -191,6 +191,22 @@ investment_input_elements = [
         },
         className="control",
     ),
+    html.P("Forecast horizon", className="control-label"),
+    dcc.Slider(
+        id="forecast_horizon",
+        min=0,
+        max=20,
+        step=5,
+        value=20,
+        marks={
+            0: "0yrs",
+            5: "5yrs",
+            10: "10yrs",
+            15: "15yrs",
+            20: "20yrs",
+        },
+        className="control",
+    ),
     html.P("Closing fees as % of purchase price", className="control-label",),
     dcc.Slider(
         id="closing_fees",

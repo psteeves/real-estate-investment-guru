@@ -25,6 +25,25 @@ rent_model = TrivialRentEstimator()
 
 
 @app.callback(
+    Output(component_id="forecast_horizon", component_property="max"),
+    [
+        Input(component_id="amortization_period", component_property="value"),
+    ],
+)
+def update_max_forecast_horizon(amortization_period):
+    return amortization_period
+
+@app.callback(
+    Output(component_id="forecast_horizon", component_property="value"),
+    [
+        Input(component_id="forecast_horizon", component_property="max"),
+    ],
+)
+def update_value_forecast_horizon(max_value):
+    return max_value
+
+
+@app.callback(
     Output(component_id="table", component_property="data"),
     [
         Input(component_id="city", component_property="value"),
@@ -33,6 +52,7 @@ rent_model = TrivialRentEstimator()
         Input(component_id="closing_fees", component_property="value"),
         Input(component_id="interest_rate", component_property="value"),
         Input(component_id="amortization_period", component_property="value"),
+        Input(component_id="forecast_horizon", component_property="value"),
         Input(component_id="vacancy_rate", component_property="value"),
         Input(component_id="rent_increase", component_property="value"),
         Input(component_id="expense_ratio", component_property="value"),
@@ -46,6 +66,7 @@ def predict_roi(
     closing_fees,
     interest_rate,
     amortization,
+    forecast_horizon,
     vacancy,
     rate_rent_increase,
     expense_ratio,
@@ -65,6 +86,7 @@ def predict_roi(
         closing_fees=closing_fees,
         interest_rate=interest_rate,
         amortization=amortization,
+        forecast_horizon=forecast_horizon,
         vacancy=vacancy,
         rate_rent_increase=rate_rent_increase,
         expense_ratio=expense_ratio,
