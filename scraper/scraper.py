@@ -141,13 +141,6 @@ def get_rental_property_info(property_url, mls_id):
 
     # Year Built
     year_built = find_carac_title_element_text(soup, "Year built", 4)
-    if year_built is not None:
-        year_built = "".join([c for c in year_built if c.isdigit()])
-        if not year_built:
-            # Empty year means it's something like "under construction"
-            year_built = 2020
-        else:
-            year_built = int(year_built)
 
     # Additional Features
     extra_features = find_carac_title_element_text(soup, "Additional features", 4)

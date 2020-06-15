@@ -63,6 +63,7 @@ class PropertyPreprocessor:
         )
         self._fit_neighborhood_encoder(data.neighborhood)
         data["neighborhood"] = data.neighborhood.apply(self._encode_neighborhood)
+        data["year_built"] = data.year_built.apply(self._convert_year_built)
 
         data = self._filter_data(data)
         return data.loc[:, self._features], data.loc[:, self._labels[0]]
@@ -112,12 +113,17 @@ class PropertyPreprocessor:
         return data
 
     def _convert_year_built(self, year):
-        try:
-            year = int(year)
-        except ValueError:
+        if year is None:
             return np.nan
+        numeric_year = "".join([c for c in year if c.isnumeric()])
+        if numeric_year:
+            numeric_year = int(numeric_year)
+            if 1600 < numeric_year < 2020:
+                return numeric_year
         else:
-            return year
+            if "New" in year:
+                return 2020
+        return np.nan
 
     def preprocess_sales_data(self, data):
         data["neighborhood"] = data.city.apply(self._extract_neigborhood_from_city)
