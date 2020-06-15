@@ -107,7 +107,7 @@ cash_flow_input_elements = [
         className="control",
     ),
     html.P(
-        "Expenses as percentage of yearly gross revenue", className="control-label",
+        "Expenses as percentage of yearly gross revenue *", className="control-label",
     ),
     dcc.Slider(
         id="expense_ratio",
@@ -144,6 +144,11 @@ cash_flow_input_elements = [
         value=0.04,
         marks={0: "0%", 0.04: "4%", 0.08: "8%", 0.12: "12%", 0.16: "16%", 0.2: "20%"},
         className="control",
+    ),
+    html.Br(),
+    html.P(
+        "* Expense ratio assumed for buildings 10 years old or newer. Multiplied by 1.5 for older buildings.",
+        style={"fontSize": 11},
     ),
 ]
 
@@ -198,13 +203,7 @@ investment_input_elements = [
         max=20,
         step=5,
         value=20,
-        marks={
-            0: "0yrs",
-            5: "5yrs",
-            10: "10yrs",
-            15: "15yrs",
-            20: "20yrs",
-        },
+        marks={0: "0yrs", 5: "5yrs", 10: "10yrs", 15: "15yrs", 20: "20yrs",},
         className="control",
     ),
     html.P("Closing fees as % of purchase price", className="control-label",),
