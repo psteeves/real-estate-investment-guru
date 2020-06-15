@@ -15,6 +15,7 @@ class SimpleFinancialModel:
         closing_fees: float,
         interest_rate: float,
         amortization: int,
+        forecast_horizon: int,
         vacancy: float,
         rate_rent_increase: float,
         expense_ratio: float,
@@ -36,12 +37,15 @@ class SimpleFinancialModel:
             )
 
         # TODO expose parameters
-        self._forecast_horizon = amortization
+        self._forecast_horizon = forecast_horizon
         self._property_tax = 0.013
         self._income_tax_rate = 0.3
 
-    def _forecast_net_income(self, monthly_rent, loan_principal, property_value):
-
+    def _forecast_income(self, monthly_rent, loan_principal, property_value):
+        """
+        Predict gross revenue and net income.
+        :return: Gross revenue and net income.
+        """
         # Income
         gross_rent_income = np.array(
             [
@@ -72,23 +76,19 @@ class SimpleFinancialModel:
         income_tax = np.clip(self._income_tax_rate * taxable_income, 0, None)
         net_income = taxable_income - income_tax
 
-        return net_income
-
-    def _get_initial_investment(self, price):
-        downpayment = price * self._downpayment
-        loan_principal = (1 + self._mortgage_premium) * price - downpayment
-        closing_fees = self._closing_fees * price
-        return loan_principal, downpayment, closing_fees
+        return gross_rent_income, net_income
 
     def _predict(self, properties):
-        # TODO break this up into smaller functions per column
         price = properties["Price"]
         monthly_rent = properties["Predicted Rent Revenue"]
 
-        loan_principal, downpayment, closing_fees = self._get_initial_investment(price)
+        downpayment = price * self._downpayment
+        closing_fees = self._closing_fees * price
         total_investment = downpayment + closing_fees
 
-        net_income = self._forecast_net_income(
+        loan_principal = (1 + self._mortgage_premium) * price - downpayment
+
+        gross_revenue, net_income = self._forecast_income(
             monthly_rent=monthly_rent,
             loan_principal=loan_principal,
             property_value=price,
@@ -110,13 +110,10 @@ class SimpleFinancialModel:
 
         mortg_premium = self._mortgage_premium * price
 
-        # TODO average this over all years to incorporate rent increase
-        gross_revenue = (monthly_rent * 12) * (1 - self._vacancy)
-
         return (
             total_investment,
             mortg_premium,
-            gross_revenue,
+            gross_revenue.mean(),
             net_income.mean(),
             net_cash_flow.mean(),
             cash_on_cash_return.mean(),
