@@ -18,10 +18,12 @@ def main():
     preprocessor = PropertyPreprocessor()
     model = SKLearnRentEstimator(estimator=estimator, preprocessor=preprocessor)
 
-    score = model.fit(data)
-    print(f"Model obtained a score of {score:.2f} on the test set.")
+    model.fit(data)
+    error_tolerance = 0.1
+    r2, percentage_correct_preds = model.score(data, error_tolerance=error_tolerance)
+    print(f"Model obtained a R2 score of {r2:.2f} on the test set. {percentage_correct_preds:.3f} fall within {100*error_tolerance:.0f}% of our predictions")
 
-    model_path = SERIALIZED_MODEL_DIR / args.name
+    model_path = (SERIALIZED_MODEL_DIR / args.name).with_suffix(".pkl")
     pickle.dump(model, open(model_path, "wb"))
     print(f"Model saved to {model_path}.")
 
