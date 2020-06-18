@@ -11,3 +11,6 @@ serve-local:
 
 serve: 
 	DB_URI=$(DB_URI) gunicorn --chdir project_real_estate/dash_app/ app:server
+
+train:
+	DB_URI=$(DB_URI) poetry run python -m scripts.train_model -n rent_predictor

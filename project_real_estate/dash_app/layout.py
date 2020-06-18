@@ -237,10 +237,11 @@ reports_section = html.Div(
         ),
         html.P(
             f"The App's financial model takes the filtered properties and predicts their potential gross rental "
-            f"revenue by analyzing comparable rental market data in real-time. Once the potential gross revenue"
-            f" is estimated, the App factors in various cash flow components (such as mortgage insurance premiums,"
-            f" closing fees, capital expenses, etc.) to establish an estimated average yearly Return on Equity over the"
-            f" loan amortization period.",
+            f"revenue by analyzing comparable rental market data in real-time. "
+            f"60% of properties' true rental price fall within 10% of our predicted rental revenue. "
+            f"Once the potential gross revenue is estimated, the App factors in various cash flow components "
+            f"(such as mortgage insurance premiums, closing fees, capital expenses, etc.) to establish an estimated "
+            f"average yearly Return on Equity over the loan amortization period.",
             id="reports-text-2",
         ),
     ],
