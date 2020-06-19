@@ -7,7 +7,8 @@ from project_real_estate.constants import ALLOWED_PROPERTY_TYPES
 
 
 class PropertyPreprocessor:
-    def __init__(self):
+    def __init__(self, price_lower_bound=100000):
+        self._price_lower_bound = price_lower_bound
         self._features = [
             "num_bathrooms",
             "num_bedrooms",
@@ -131,6 +132,8 @@ class PropertyPreprocessor:
         data["year_built"] = data.year_built.apply(self._convert_year_built)
         data = self._conform_sales_data_to_rent_schema(data)
         data = self._filter_data(data)
+        # For properties for sale, we also want to filter properties that are below 100K.
+        data = data[data.price > self._price_lower_bound]
         return (
             data.loc[:, self._features],
             data.loc[:, "num_units"],
