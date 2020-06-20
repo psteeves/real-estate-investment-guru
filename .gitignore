@@ -1,5 +1,6 @@
-.env
-**/.ipynb_checkpoints
-.idea
 **/__pycache__
+**/.ipynb_checkpoints
+.env
+.idea
 .DS_Store
+*.egg-info
