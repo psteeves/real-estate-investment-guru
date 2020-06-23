@@ -1,6 +1,5 @@
 from pathlib import Path
 
-MAX_NUM_RESULTS = 20
 COLUMNS_TO_DISPLAY = [
     "City",
     "Price",

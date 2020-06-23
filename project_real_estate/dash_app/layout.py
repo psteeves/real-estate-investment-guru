@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 
-from project_real_estate.constants import COLUMNS_TO_DISPLAY, MAX_NUM_RESULTS
+from project_real_estate.constants import COLUMNS_TO_DISPLAY
 from project_real_estate.dash_app.models import rent_model
 from project_real_estate.db import pull_data
 
@@ -231,7 +231,7 @@ reports_section = html.Div(
     [
         html.H2("Investment report", className="control-title"),
         html.P(
-            f"The below report shows the top {MAX_NUM_RESULTS} properties that fit your requirements, "
+            f"The below report shows the top properties that fit your requirements, "
             f"sorted by Return on Equity (averageed over the amortization period).",
             id="reports-text",
         ),
@@ -248,6 +248,22 @@ reports_section = html.Div(
     className="pretty-container",
     style={"margin-bottom": "40px"},
     id="reports-section",
+)
+
+num_results_filter = html.Div(
+    [
+        html.P("Number of results to show:"),
+        dcc.Input(
+            id="num_results",
+            type="number",
+            placeholder="Number of Search Results",
+            min=1,
+            max=100,
+            step=1,
+            value=20,
+            className="control control-input",
+        ),
+    ],
 )
 
 results_list = dash_table.DataTable(
