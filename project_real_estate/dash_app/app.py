@@ -2,9 +2,10 @@ import dash
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-from project_real_estate.constants import COLUMNS_TO_DISPLAY, MAX_NUM_RESULTS
+from project_real_estate.constants import COLUMNS_TO_DISPLAY
 from project_real_estate.dash_app.layout import (
     app_header,
+    num_results_filter,
     reports_section,
     results_list,
     sales_data_display_with_rent_predictions,
@@ -17,7 +18,9 @@ from project_real_estate.models.financial_model import (
 from project_real_estate.models.rent_estimator import TrivialRentEstimator
 
 app = dash.Dash(__name__)
-app.layout = html.Div([app_header, user_inputs, reports_section, results_list])
+app.layout = html.Div(
+    [app_header, user_inputs, reports_section, num_results_filter, results_list]
+)
 
 
 financial_model = TrivialFinancialModel()
@@ -54,6 +57,7 @@ def update_value_forecast_horizon(max_value):
         Input(component_id="rent_increase", component_property="value"),
         Input(component_id="expense_ratio", component_property="value"),
         Input(component_id="yearly_reserves", component_property="value"),
+        Input(component_id="num_results", component_property="value"),
     ],
 )
 def predict_roi(
@@ -68,6 +72,7 @@ def predict_roi(
     rate_rent_increase,
     expense_ratio,
     yearly_reserves,
+    num_results,
 ):
     if not city_filters:
         sales_by_city = sales_data_display_with_rent_predictions
@@ -115,7 +120,7 @@ def predict_roi(
 
     prediction["Price"] = prediction["Price"].apply(lambda x: f"{x:,.0f}")
 
-    return prediction.iloc[:MAX_NUM_RESULTS].to_dict("rows")
+    return prediction.iloc[:num_results].to_dict("rows")
 
 
 server = app.server
