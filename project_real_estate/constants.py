@@ -9,6 +9,7 @@ COLUMNS_TO_DISPLAY = [
     "Net Cash",
     "Cash Return",
     "ROE",
+    "Cap Rate",
     "URL",
 ]
 ALLOWED_PROPERTY_TYPES = ["Condo / Apartment", "Loft / Studio"]

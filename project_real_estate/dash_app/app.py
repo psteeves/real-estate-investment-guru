@@ -110,7 +110,7 @@ def predict_roi(
     prediction = finance_model.predict(filtered_sales).loc[:, COLUMNS_TO_DISPLAY]
     prediction = prediction.sort_values(by="ROE", ascending=False)
     prediction["ROE"] = prediction["ROE"].apply(lambda x: f"{x:.1%}")
-
+    prediction["Cap Rate"] = prediction["Cap Rate"].apply(lambda x: f"{x:.1%}")
     prediction["Cash Return"] = prediction["Cash Return"].apply(lambda x: f"{x:.1%}")
 
     prediction["Initial Investment"] = prediction["Initial Investment"].apply(
