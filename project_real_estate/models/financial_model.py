@@ -41,13 +41,7 @@ class SimpleFinancialModel:
         self._property_tax = 0.013
         self._income_tax_rate = 0.3
 
-    def _forecast_income(
-        self, monthly_rent, loan_principal, property_value, expense_ratio
-    ):
-        """
-        Predict gross revenue and net income.
-        :return: Gross revenue and net income.
-        """
+    def _forecast_gross_revenue(self, monthly_rent):
         # Income
         gross_rent_income = np.array(
             [
@@ -58,27 +52,7 @@ class SimpleFinancialModel:
                 for i in range(self._forecast_horizon)
             ]
         )
-
-        # Expenses
-        expenses = expense_ratio * gross_rent_income
-        interest_payments = np.ipmt(
-            rate=self._interest_rate,
-            per=[i + 1 for i in range(self._forecast_horizon)],
-            nper=self._amortization,
-            pv=-loan_principal,
-        )
-        property_taxes = np.array(
-            [self._property_tax * property_value] * self._forecast_horizon
-        )
-
-        # Tax
-        taxable_income = (
-            gross_rent_income - expenses - interest_payments - property_taxes
-        )
-        income_tax = np.clip(self._income_tax_rate * taxable_income, 0, None)
-        net_income = taxable_income - income_tax
-
-        return gross_rent_income, net_income
+        return gross_rent_income
 
     def _predict(self, prop):
         price = prop["Price"]
@@ -95,12 +69,24 @@ class SimpleFinancialModel:
             self._expense_ratio if prop.year_built > 2010 else self._expense_ratio * 1.5
         )
 
-        gross_revenue, net_income = self._forecast_income(
-            monthly_rent=monthly_rent,
-            loan_principal=loan_principal,
-            property_value=price,
-            expense_ratio=property_expense_ratio,
+        yearly_gross_revenue = self._forecast_gross_revenue(monthly_rent)
+
+        # Expenses
+        expenses = property_expense_ratio * yearly_gross_revenue
+        interest_payments = np.ipmt(
+            rate=self._interest_rate,
+            per=[i + 1 for i in range(self._forecast_horizon)],
+            nper=self._amortization,
+            pv=-loan_principal,
         )
+        property_taxes = np.array([self._property_tax * price] * self._forecast_horizon)
+
+        # Tax
+        taxable_income = (
+            yearly_gross_revenue - expenses - interest_payments - property_taxes
+        )
+        income_tax = np.clip(self._income_tax_rate * taxable_income, 0, None)
+        net_income = taxable_income - income_tax
 
         principal_repayments = np.ppmt(
             rate=self._interest_rate,
@@ -113,6 +99,7 @@ class SimpleFinancialModel:
         net_cash_flow = net_income - principal_repayments - yearly_reserves
         net_equity = net_cash_flow + principal_repayments
 
+        cap_rate = (yearly_gross_revenue - property_taxes - expenses) / price
         cash_on_cash_return = net_cash_flow / total_investment
         return_on_equity = net_equity / total_investment
 
@@ -121,11 +108,12 @@ class SimpleFinancialModel:
         return (
             total_investment,
             mortg_premium,
-            gross_revenue.mean(),
+            yearly_gross_revenue.mean(),
             net_income.mean(),
             net_cash_flow.mean(),
             cash_on_cash_return.mean(),
             return_on_equity.mean(),
+            cap_rate.mean(),
         )
 
     def predict(self, properties):
@@ -138,6 +126,7 @@ class SimpleFinancialModel:
                 "Net Cash",
                 "Cash Return",
                 "ROE",
+                "Cap Rate",
             ]
         ] = properties.apply(self._predict, axis=1, result_type="expand")
         return properties
