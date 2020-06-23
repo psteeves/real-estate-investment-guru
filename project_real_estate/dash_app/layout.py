@@ -40,6 +40,8 @@ sales_data_display_with_rent_predictions = _format_data(
     sales_data_with_rent_predictions
 )
 
+oldest_year = int(sales_data_display_with_rent_predictions.year_built.min())
+
 
 app_header = html.Div(
     [
@@ -90,6 +92,16 @@ property_filter_elements = [
             5000000: "5M",
         },
         className="control",
+    ),
+    html.P("Year built", className="control-label"),
+    dcc.RangeSlider(
+        id="year_built",
+        min=oldest_year,
+        max=2020,
+        step=1,
+        value=[1970, 2020],
+        className="control",
+        marks={value: f"{value}" for value in range(oldest_year, 2020, 20)},
     ),
 ]
 
