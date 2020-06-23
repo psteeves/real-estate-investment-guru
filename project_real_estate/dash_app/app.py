@@ -48,6 +48,7 @@ def update_value_forecast_horizon(max_value):
     [
         Input(component_id="city", component_property="value"),
         Input(component_id="budget", component_property="value"),
+        Input(component_id="year_built", component_property="value"),
         Input(component_id="downpayment", component_property="value"),
         Input(component_id="closing_fees", component_property="value"),
         Input(component_id="interest_rate", component_property="value"),
@@ -63,6 +64,7 @@ def update_value_forecast_horizon(max_value):
 def predict_roi(
     city_filters,
     budget,
+    year_built_filter,
     downpayment,
     closing_fees,
     interest_rate,
@@ -75,14 +77,19 @@ def predict_roi(
     num_results,
 ):
     if not city_filters:
-        sales_by_city = sales_data_display_with_rent_predictions
+        filtered_sales = sales_data_display_with_rent_predictions
     else:
-        sales_by_city = sales_data_display_with_rent_predictions[
+        filtered_sales = sales_data_display_with_rent_predictions[
             sales_data_display_with_rent_predictions.City.isin(city_filters)
         ]
 
-    sales_under_budget = sales_by_city[
-        (sales_by_city.Price > budget[0]) & (sales_by_city.Price < budget[1])
+    sales_under_budget = filtered_sales[
+        (filtered_sales.Price > budget[0]) & (filtered_sales.Price < budget[1])
+    ]
+
+    filtered_sales = sales_under_budget[
+        (sales_under_budget.year_built > year_built_filter[0])
+        & (sales_under_budget.year_built < year_built_filter[1])
     ]
 
     # Convert percentages to decimals
@@ -100,7 +107,7 @@ def predict_roi(
         expense_ratio=expense_ratio,
         yearly_reserves=yearly_reserves,
     )
-    prediction = finance_model.predict(sales_under_budget).loc[:, COLUMNS_TO_DISPLAY]
+    prediction = finance_model.predict(filtered_sales).loc[:, COLUMNS_TO_DISPLAY]
     prediction = prediction.sort_values(by="ROE", ascending=False)
     prediction["ROE"] = prediction["ROE"].apply(lambda x: f"{x:.1%}")
 
