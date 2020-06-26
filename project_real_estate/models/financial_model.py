@@ -17,6 +17,7 @@ class SimpleFinancialModel:
         amortization: int,
         forecast_horizon: int,
         vacancy: float,
+        property_tax_rate: float,
         rate_rent_increase: float,
         expense_ratio: float,
         yearly_reserves: int,
@@ -36,9 +37,10 @@ class SimpleFinancialModel:
                 f"Downpayment must be one of {list(_MORTGAGE_PREMIUM_SCALE.keys())}. Got `{self._downpayment}`"
             )
 
-        # TODO expose parameters
         self._forecast_horizon = forecast_horizon
-        self._property_tax = 0.013
+        # TODO automatically lookup property tax rate by city.
+        self._property_tax = property_tax_rate
+        # TODO do something smarter for income tax rate.
         self._income_tax_rate = 0.3
 
     def _forecast_gross_revenue(self, monthly_rent):
