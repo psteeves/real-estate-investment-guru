@@ -18,8 +18,17 @@ def _format_data(data):
         lambda x: round(x, 0)
     )
 
-    # Make URL markdown
-    data.url = data.url.apply(lambda x: "[Property Listing](" + x + ")")
+    # Use Google search instead of Centris
+    data.url = (
+        "[Property Listing](https://www.google.com/search?q=for+sale+"
+        + data.full_address.str.replace(" ", "+")
+        + "+"
+        + data.city.str.replace(" ", "+")
+        + "+"
+        + data.property_type.str.replace(" ", "+")
+        + ")"
+    )
+
     data.rename(
         columns={
             "property_type": "Property Type",
