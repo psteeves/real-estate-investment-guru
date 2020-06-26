@@ -3,13 +3,11 @@ from pathlib import Path
 COLUMNS_TO_DISPLAY = [
     "City",
     "Price",
-    "Initial Investment",
-    "Gross Revenue",
-    "Net Income",
+    "Investment",
+    "Revenue",
+    "Cap Rate (%)",
     "Net Cash",
-    "Cash Return",
-    "ROE",
-    "Cap Rate",
+    "ROE (%)",
     "URL",
 ]
 ALLOWED_PROPERTY_TYPES = ["Condo / Apartment", "Loft / Studio"]

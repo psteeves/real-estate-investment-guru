@@ -8,7 +8,7 @@ from project_real_estate.dash_app.layout import (
     num_results_filter,
     reports_section,
     results_list,
-    sales_data_display_with_rent_predictions,
+    sales_data_with_rent_predictions,
     user_inputs,
 )
 from project_real_estate.models.financial_model import (
@@ -25,6 +25,45 @@ app.layout = html.Div(
 
 financial_model = TrivialFinancialModel()
 rent_model = TrivialRentEstimator()
+
+
+def _format_data(data):
+    # Keep civic No., street and city
+    data.full_address = data.full_address.apply(lambda x: "".join(x.split(",")[:2]))
+    data.city = data.city.apply(lambda x: x.split("(")[0].strip())
+
+    data["ROE"] = data["ROE"].apply(lambda x: f"{x:.1%}")
+    data["cap_rate"] = data["cap_rate"].apply(lambda x: f"{x:.1%}")
+    data["investment"] = data["investment"].apply(lambda x: f"{x:,.0f}")
+    data["revenue"] = data["revenue"].apply(lambda x: f"{x:,.0f}")
+    data["net_cash"] = data["net_cash"].apply(lambda x: f"{x:,.0f}")
+    data["price"] = data["price"].apply(lambda x: f"{x:,.0f}")
+
+    # Use Google search instead of Centris
+    data.url = (
+        "[Property Listing](https://www.google.com/search?q=for+sale+"
+        + data.full_address.str.replace(" ", "+")
+        + "+"
+        + data.city.str.replace(" ", "+")
+        + "+"
+        + data.property_type.str.replace(" ", "+")
+        + ")"
+    )
+
+    data.rename(
+        columns={
+            "city": "City",
+            "price": "Price",
+            "investment": "Investment",
+            "revenue": "Revenue",
+            "cap_rate": "Cap Rate (%)",
+            "net_cash": "Net Cash",
+            "ROE": "ROE (%)",
+            "url": "URL",
+        },
+        inplace=True,
+    )
+    return data
 
 
 @app.callback(
@@ -79,14 +118,14 @@ def predict_roi(
     num_results,
 ):
     if not city_filters:
-        filtered_sales = sales_data_display_with_rent_predictions
+        filtered_sales = sales_data_with_rent_predictions
     else:
-        filtered_sales = sales_data_display_with_rent_predictions[
-            sales_data_display_with_rent_predictions.City.isin(city_filters)
+        filtered_sales = sales_data_with_rent_predictions[
+            sales_data_with_rent_predictions.city.isin(city_filters)
         ]
 
     sales_under_budget = filtered_sales[
-        (filtered_sales.Price > budget[0]) & (filtered_sales.Price < budget[1])
+        (filtered_sales.price > budget[0]) & (filtered_sales.price < budget[1])
     ]
 
     filtered_sales = sales_under_budget[
@@ -115,27 +154,10 @@ def predict_roi(
         expense_ratio=expense_ratio,
         yearly_reserves=yearly_reserves,
     )
-    prediction = finance_model.predict(filtered_sales).loc[:, COLUMNS_TO_DISPLAY]
+    prediction = finance_model.predict(filtered_sales)
     prediction = prediction.sort_values(by="ROE", ascending=False)
-    prediction["ROE"] = prediction["ROE"].apply(lambda x: f"{x:.1%}")
-    prediction["Cap Rate"] = prediction["Cap Rate"].apply(lambda x: f"{x:.1%}")
-    prediction["Cash Return"] = prediction["Cash Return"].apply(lambda x: f"{x:.1%}")
-
-    prediction["Initial Investment"] = prediction["Initial Investment"].apply(
-        lambda x: f"{x:,.0f}"
-    )
-
-    prediction["Gross Revenue"] = prediction["Gross Revenue"].apply(
-        lambda x: f"{x:,.0f}"
-    )
-
-    prediction["Net Income"] = prediction["Net Income"].apply(lambda x: f"{x:,.0f}")
-
-    prediction["Net Cash"] = prediction["Net Cash"].apply(lambda x: f"{x:,.0f}")
-
-    prediction["Price"] = prediction["Price"].apply(lambda x: f"{x:,.0f}")
-
-    return prediction.iloc[:num_results].to_dict("rows")
+    formatted_prediction = _format_data(prediction.iloc[:num_results])
+    return formatted_prediction.loc[:, COLUMNS_TO_DISPLAY].to_dict("rows")
 
 
 server = app.server
