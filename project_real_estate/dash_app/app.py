@@ -96,8 +96,12 @@ def predict_roi(
 
     # Convert percentages to decimals
     downpayment /= 100
+    closing_fees /= 100
     interest_rate /= 100
+    vacancy /= 100
     property_tax_rate /= 100
+    rate_rent_increase /= 100
+    expense_ratio /= 100
 
     finance_model = SimpleFinancialModel(
         downpayment=downpayment,
