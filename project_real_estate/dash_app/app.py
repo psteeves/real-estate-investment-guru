@@ -55,6 +55,7 @@ def update_value_forecast_horizon(max_value):
         Input(component_id="amortization_period", component_property="value"),
         Input(component_id="forecast_horizon", component_property="value"),
         Input(component_id="vacancy_rate", component_property="value"),
+        Input(component_id="property_tax_rate", component_property="value"),
         Input(component_id="rent_increase", component_property="value"),
         Input(component_id="expense_ratio", component_property="value"),
         Input(component_id="yearly_reserves", component_property="value"),
@@ -71,6 +72,7 @@ def predict_roi(
     amortization,
     forecast_horizon,
     vacancy,
+    property_tax_rate,
     rate_rent_increase,
     expense_ratio,
     yearly_reserves,
@@ -95,6 +97,7 @@ def predict_roi(
     # Convert percentages to decimals
     downpayment /= 100
     interest_rate /= 100
+    property_tax_rate /= 100
 
     finance_model = SimpleFinancialModel(
         downpayment=downpayment,
@@ -103,6 +106,7 @@ def predict_roi(
         amortization=amortization,
         forecast_horizon=forecast_horizon,
         vacancy=vacancy,
+        property_tax_rate=property_tax_rate,
         rate_rent_increase=rate_rent_increase,
         expense_ratio=expense_ratio,
         yearly_reserves=yearly_reserves,

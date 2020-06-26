@@ -108,6 +108,17 @@ property_filter_elements = [
 
 cash_flow_input_elements = [
     html.P("Cash flow parameters", className="control-title"),
+    html.P("Property tax rate", className="control-label"),
+    dcc.Input(
+        id="property_tax_rate",
+        type="number",
+        placeholder="Property tax rate",
+        min=0.0,
+        max=5.0,
+        step=0.1,
+        value=1.0,
+        className="control control-input",
+    ),
     html.P("Yearly rent increase", className="control-label"),
     dcc.Slider(
         id="rent_increase",
@@ -167,7 +178,6 @@ cash_flow_input_elements = [
 
 investment_input_elements = [
     html.P("Deal parameters", className="control-title"),
-    # TODO have input be in percentage instead of decimals
     html.P("Downpayment (%)", className="control-label"),
     dcc.Input(
         id="downpayment",
@@ -179,7 +189,6 @@ investment_input_elements = [
         value=15,
         className="control control-input",
     ),
-    # TODO have input be in percentage instead of decimals
     html.P("Mortgage interest rate (%)", className="control-label"),
     dcc.Input(
         id="interest_rate",
