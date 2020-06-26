@@ -57,8 +57,8 @@ class SimpleFinancialModel:
         return gross_rent_income
 
     def _predict(self, prop):
-        price = prop["Price"]
-        monthly_rent = prop["Predicted Rent Revenue"]
+        price = prop["price"]
+        monthly_rent = prop["predicted_rent_revenue"]
 
         downpayment = price * self._downpayment
         closing_fees = self._closing_fees * price
@@ -121,14 +121,14 @@ class SimpleFinancialModel:
     def predict(self, properties):
         properties[
             [
-                "Initial Investment",
-                "Mrtg. Premium",
-                "Gross Revenue",
-                "Net Income",
-                "Net Cash",
-                "Cash Return",
+                "investment",
+                "mortgage_premium",
+                "revenue",
+                "net_income",
+                "net_cash",
+                "cash_return",
                 "ROE",
-                "Cap Rate",
+                "cap_rate",
             ]
         ] = properties.apply(self._predict, axis=1, result_type="expand")
         return properties

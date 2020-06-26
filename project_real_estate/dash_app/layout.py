@@ -6,52 +6,13 @@ from project_real_estate.constants import COLUMNS_TO_DISPLAY
 from project_real_estate.dash_app.models import rent_model
 from project_real_estate.db import pull_data
 
-
-def _format_data(data):
-    # Keep civic No., street and city
-    data.full_address = data.full_address.apply(lambda x: "".join(x.split(",")[:2]))
-    data.city = data.city.apply(lambda x: x.split("(")[0].strip())
-
-    # Round dollar amounts
-    data.price = data["price"].apply(lambda x: round(x, 0))
-    data.predicted_rent_revenue = data["predicted_rent_revenue"].apply(
-        lambda x: round(x, 0)
-    )
-
-    # Use Google search instead of Centris
-    data.url = (
-        "[Property Listing](https://www.google.com/search?q=for+sale+"
-        + data.full_address.str.replace(" ", "+")
-        + "+"
-        + data.city.str.replace(" ", "+")
-        + "+"
-        + data.property_type.str.replace(" ", "+")
-        + ")"
-    )
-
-    data.rename(
-        columns={
-            "property_type": "Property Type",
-            "city": "City",
-            "price": "Price",
-            "predicted_rent_revenue": "Predicted Rent Revenue",
-            "url": "URL",
-        },
-        inplace=True,
-    )
-    return data
-
-
 sales_data = pull_data("latest_sales", max_rows=None)
 predicted_rent_revenue = rent_model.predict(sales_data)
 sales_data_with_rent_predictions = sales_data.join(predicted_rent_revenue, how="inner")
-sales_data_display_with_rent_predictions = _format_data(
-    sales_data_with_rent_predictions
-)
 
-oldest_year = int(sales_data_display_with_rent_predictions.year_built.min())
-lowest_price = int(sales_data_display_with_rent_predictions.Price.min())
-highest_price = int(sales_data_display_with_rent_predictions.Price.max())
+oldest_year = int(sales_data_with_rent_predictions.year_built.min())
+lowest_price = int(sales_data_with_rent_predictions.price.min())
+highest_price = int(sales_data_with_rent_predictions.price.max())
 
 
 app_header = html.Div(
@@ -80,7 +41,7 @@ property_filter_elements = [
         id="city",
         options=[
             {"label": city, "value": city}
-            for city in sales_data_display_with_rent_predictions.City.unique()
+            for city in sales_data_with_rent_predictions.city.unique()
         ],
         multi=True,
         value=[],
