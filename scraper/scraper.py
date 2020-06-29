@@ -309,7 +309,7 @@ def _load_chrome_browser(local: bool):
 
 
 def _save_results_to_aws(data, task, if_exists):
-    uri = os.environ["DB_URL"]
+    uri = os.environ["DATABASE_URL"]
     engine = create_engine(uri)
     data.to_sql(name=task, con=engine, if_exists=if_exists, index=False)
 

@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 
 
 def pull_data(table_name, output_file=None, max_rows=10000):
-    db_uri = os.environ["DB_URL"]
+    db_uri = os.environ["DATABASE_URL"]
     engine = create_engine(db_uri)
     sql = f"SELECT * FROM {table_name}"
     if max_rows is not None:
